@@ -1,7 +1,6 @@
-package ort.da.Obligatorio.Controladores;
+package edu.ort.da.obligatorio.Controladores;
 
-import ort.da.Obligatorio.Modelo.String;
-import ort.da.Obligatorio.Object;
+import java.util.List;
 
 public class Respuesta {
 

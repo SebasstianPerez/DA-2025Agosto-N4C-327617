@@ -1,7 +1,4 @@
-package ort.da.Obligatorio.DTOs.Vehiculo;
-
-import ort.da.Obligatorio.Modelo.String;
-import ort.da.Obligatorio.Modelo.CategoriaVehiculo;
+package edu.ort.da.obligatorio.DTOs.Vehiculo;
 
 public class VehiculoDTO {
 
@@ -9,7 +6,7 @@ public class VehiculoDTO {
 
 	private String color;
 
-	private CategoriaVehiculo categoria;
+	private String categoriaVehiculo;
 
 	private int cantidadTransitos;
 

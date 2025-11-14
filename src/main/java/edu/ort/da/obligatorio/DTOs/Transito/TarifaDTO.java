@@ -1,12 +1,10 @@
-package ort.da.Obligatorio.DTOs.Transito;
-
-import ort.da.Obligatorio.Modelo.CategoriaVehiculo;
+package edu.ort.da.obligatorio.DTOs.Transito;
 
 public class TarifaDTO {
 
 	private double monto;
 
-	private CategoriaVehiculo categoriaVehiculo;
+	private String categoriaVehiculo;
 
 	public TarifaDTO() {
 
@@ -22,7 +20,7 @@ public class TarifaDTO {
 	/**
 	 *  
 	 */
-	public void setCategoria(CategoriaVehiculo categoria) {
+	public void setCategoria(String categoria) {
 
 	}
 
@@ -30,7 +28,7 @@ public class TarifaDTO {
 		return 0;
 	}
 
-	public CategoriaVehiculo getCategoria() {
+	public String getCategoria() {
 		return null;
 	}
 

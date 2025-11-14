@@ -1,7 +1,8 @@
-package ort.da.Obligatorio.SubSistemas;
+package edu.ort.da.obligatorio.Servicios;
 
-import ort.da.Obligatorio.Modelo.Vehiculo;
-import ort.da.Obligatorio.Modelo.String;
+import java.util.Collection;
+
+import edu.ort.da.obligatorio.Modelo.Vehiculo;
 
 public class SistemaVehiculos {
 
@@ -17,7 +18,7 @@ public class SistemaVehiculos {
 
 	}
 
-	public ArrayList<Vehiculo> getVehiculosXPropietario(String cedula) {
+	public Collection<Vehiculo> getVehiculosXPropietario(String cedula) {
 		return null;
 	}
 

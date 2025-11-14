@@ -1,7 +1,7 @@
-package ort.da.Obligatorio.Controladores;
+package edu.ort.da.obligatorio.Controladores;
 
-import ort.da.Obligatorio.Fachada;
-import ort.da.Obligatorio.DTOs.Usuario.LoginDTO;
+import edu.ort.da.obligatorio.Servicios.Fachada;
+import edu.ort.da.obligatorio.DTOs.Usuario.LoginDTO;
 
 public abstract class LoginControllerAbstracto {
 

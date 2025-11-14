@@ -1,6 +1,6 @@
-package ort.da.Obligatorio.DTOs.Transito;
+package edu.ort.da.obligatorio.DTOs.Transito;
 
-import ort.da.Obligatorio.Modelo.String;
+import java.util.Collection;
 
 public class PuestoDTO {
 
@@ -8,6 +8,6 @@ public class PuestoDTO {
 
 	private String direccion;
 
-	private ArrayList<TarifaDTO> tarifas;
+	private Collection<TarifaDTO> tarifas;
 
 }

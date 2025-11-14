@@ -1,9 +1,9 @@
-package ort.da.Obligatorio;
+package edu.ort.da.obligatorio.Servicios;
 
-import ort.da.Obligatorio.SubSistemas.SistemaUsuarios;
-import ort.da.Obligatorio.SubSistemas.SistemaVehiculos;
-import ort.da.Obligatorio.SubSistemas.SistemaTransito;
-import ort.da.Obligatorio.DTOs.Transito.TransitoDTO;
+import edu.ort.da.obligatorio.Servicios.SistemaUsuarios;
+import edu.ort.da.obligatorio.Servicios.SistemaVehiculos;
+import edu.ort.da.obligatorio.Servicios.SistemaTransito;
+import edu.ort.da.obligatorio.DTOs.Transito.TransitoDTO;
 
 public class Fachada {
 

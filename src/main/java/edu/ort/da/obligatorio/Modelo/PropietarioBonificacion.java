@@ -1,4 +1,6 @@
-package ort.da.Obligatorio.Modelo;
+package edu.ort.da.obligatorio.Modelo;
+
+import java.time.LocalDateTime;
 
 public class PropietarioBonificacion {
 
@@ -9,11 +11,5 @@ public class PropietarioBonificacion {
 	private Bonificacion bonificacion;
 
 	private LocalDateTime fechaAsignada;
-
-	private Propietario propietario;
-
-	private Puesto puesto;
-
-	private Bonificacion bonificacion;
 
 }

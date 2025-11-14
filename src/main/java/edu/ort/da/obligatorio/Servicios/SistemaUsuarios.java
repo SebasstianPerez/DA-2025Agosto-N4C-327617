@@ -1,16 +1,14 @@
-package ort.da.Obligatorio.SubSistemas;
+package edu.ort.da.obligatorio.Servicios;
 
-import ort.da.Obligatorio.Modelo.Usuario;
-import ort.da.Obligatorio.Modelo.PropietarioBonificacion;
-import ort.da.Obligatorio.Modelo.String;
-import ort.da.Obligatorio.Modelo.Propietario;
-import ort.da.Obligatorio.DTOs.Usuario.PropietarioDTO;
-import ort.da.Obligatorio.DTOs.Usuario.LoginDTO;
+import java.util.Collection;
+
+import edu.ort.da.obligatorio.DTOs.Usuario.LoginDTO;
+import edu.ort.da.obligatorio.DTOs.Usuario.PropietarioDTO;
+import edu.ort.da.obligatorio.Modelo.Propietario;
+import edu.ort.da.obligatorio.Modelo.PropietarioBonificacion;
+import edu.ort.da.obligatorio.Modelo.Usuario;
 
 class SistemaUsuarios {
-
-	private Usuario usuario;
-
 	private Usuario usuario;
 
 	private SistemaUsuarios sistemaUsuarios;
@@ -29,7 +27,7 @@ class SistemaUsuarios {
 		return null;
 	}
 
-	public ArrayList<Propietario> getUsuarios() {
+	public Collection<Propietario> getUsuarios() {
 		return null;
 	}
 
@@ -47,11 +45,11 @@ class SistemaUsuarios {
 		return null;
 	}
 
-	public ArrayList<Propietario> getNotifiaciones(String cedula) {
+	public Collection<Propietario> getNotifiaciones(String cedula) {
 		return null;
 	}
 
-	public ArrayList<PropietarioBonificacion> getBonificaciones(String cedula) {
+	public Collection<PropietarioBonificacion> getBonificaciones(String cedula) {
 		return null;
 	}
 

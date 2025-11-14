@@ -1,6 +1,4 @@
-package ort.da.Obligatorio.DTOs.Usuario;
-
-import ort.da.Obligatorio.Modelo.String;
+package edu.ort.da.obligatorio.DTOs.Usuario;
 
 public class LoginDTO {
 

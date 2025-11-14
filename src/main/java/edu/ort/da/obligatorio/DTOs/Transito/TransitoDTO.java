@@ -1,8 +1,10 @@
-package ort.da.Obligatorio.DTOs.Transito;
+package edu.ort.da.obligatorio.DTOs.Transito;
 
-import ort.da.Obligatorio.DTOs.Vehiculo.VehiculoDTO;
-import ort.da.Obligatorio.DTOs.Usuario.BonificacionDTO;
-import ort.da.Obligatorio.Modelo.LocalDateTime;
+
+import java.time.LocalDateTime;
+
+import edu.ort.da.obligatorio.DTOs.Usuario.BonificacionDTO;
+import edu.ort.da.obligatorio.DTOs.Vehiculo.VehiculoDTO;
 
 public class TransitoDTO {
 

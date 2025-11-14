@@ -1,4 +1,4 @@
-package ort.da.Obligatorio.Modelo;
+package edu.ort.da.obligatorio.Modelo;
 
 public class Vehiculo {
 
@@ -11,10 +11,6 @@ public class Vehiculo {
 	private double montoTotal;
 
 	private int cantidadTransitos;
-
-	private Propietario propietario;
-
-	private Propietario propietario;
 
 	private Propietario propietario;
 

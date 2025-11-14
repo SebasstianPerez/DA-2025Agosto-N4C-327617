@@ -1,5 +1,8 @@
-package ort.da.Obligatorio.Modelo;
+package edu.ort.da.obligatorio.Modelo;
 
+import lombok.Data;
+
+@Data
 public class Transito {
 
 	private Vehiculo vehiculo;
@@ -7,11 +10,5 @@ public class Transito {
 	private PropietarioBonificacion propietarioBonificacion;
 
 	private double montoPagado;
-
-	private PropietarioBonificacion propietarioBonificacion;
-
-	private Propietario propietario;
-
-	private Vehiculo vehiculo;
 
 }

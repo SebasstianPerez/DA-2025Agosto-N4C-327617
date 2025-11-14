@@ -1,7 +1,6 @@
-package ort.da.Obligatorio.DTOs.Usuario;
+package edu.ort.da.obligatorio.DTOs.Usuario;
 
-import ort.da.Obligatorio.Modelo.String;
-import ort.da.Obligatorio.Modelo.LocalDateTime;
+import java.time.LocalDateTime;
 
 public class BonificacionDTO {
 

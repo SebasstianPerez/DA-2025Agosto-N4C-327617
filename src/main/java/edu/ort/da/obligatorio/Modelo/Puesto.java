@@ -1,4 +1,4 @@
-package ort.da.Obligatorio.Modelo;
+package edu.ort.da.obligatorio.Modelo;
 
 import java.util.Collection;
 
@@ -8,7 +8,7 @@ public class Puesto {
 
 	private String direccion;
 
-	private ArrayList<Tarifa> tarifas;
+	private Collection<Tarifa> tarifas;
 
 	private Tarifa tarifa;
 

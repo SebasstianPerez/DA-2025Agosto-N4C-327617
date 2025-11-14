@@ -1,8 +1,9 @@
-package ort.da.Obligatorio.SubSistemas;
+package edu.ort.da.obligatorio.Servicios;
 
-import ort.da.Obligatorio.Modelo.Puesto;
-import ort.da.Obligatorio.Modelo.Transito;
-import ort.da.Obligatorio.Modelo.String;
+import java.util.Collection;
+
+import edu.ort.da.obligatorio.Modelo.Puesto;
+import edu.ort.da.obligatorio.Modelo.Transito;
 
 public class SistemaTransito {
 
@@ -20,7 +21,7 @@ public class SistemaTransito {
 
 	}
 
-	public ArrayList<Transito> getTransitosRealizados(String cedula) {
+	public Collection<Transito> getTransitosRealizados(String cedula) {
 		return null;
 	}
 
@@ -28,7 +29,7 @@ public class SistemaTransito {
 
 	}
 
-	public ArrayList<Puesto> getPuestos() {
+	public Collection<Puesto> getPuestos() {
 		return null;
 	}
 

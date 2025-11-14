@@ -1,4 +1,6 @@
-package ort.da.Obligatorio.Modelo;
+package edu.ort.da.obligatorio.Modelo;
+
+import java.time.LocalDateTime;
 
 public class Notificacion {
 

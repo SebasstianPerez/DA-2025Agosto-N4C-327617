@@ -1,5 +1,6 @@
-package ort.da.Obligatorio.Modelo;
+package edu.ort.da.obligatorio.Modelo;
 
+import java.util.ArrayList;
 import java.util.Collection;
 
 public class Propietario extends Usuario {
@@ -10,19 +11,11 @@ public class Propietario extends Usuario {
 
 	private int estado;
 
-	private ArrayList<Notificacion> notificaciones;
+	private Collection<Notificacion> notificaciones;
 
-	private ArrayList<Vehiculo> vehiculos;
+	private Collection<Vehiculo> vehiculos;
 
-	private ArrayList<PropietarioBonificacion> bonificaciones;
-
-	private Bonificacion bonificacion;
-
-	private Collection<PropietarioBonificacion> propietarioBonificacion;
-
-	private Collection<Vehiculo> vehiculo;
-
-	private Vehiculo vehiculo;
+	private Collection<PropietarioBonificacion> bonificaciones;
 
 	public Propietario() {
 
@@ -36,7 +29,7 @@ public class Propietario extends Usuario {
 		return 0;
 	}
 
-	public void agregarSaldo(int double) {
+	public void agregarSaldo(double saldo) {
 
 	}
 
