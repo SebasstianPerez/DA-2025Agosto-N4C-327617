@@ -1,48 +1,41 @@
 package edu.ort.da.obligatorio.Controladores;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class Respuesta {
+  private String id;
+    private Object parametro;
 
-	private String id;
+    public Respuesta(String id, Object parametro) {
+        this.id = id;
+        this.parametro = parametro;
+    }
 
-	private Object parametro;
+    public Respuesta() {
+    }
 
-	/**
-	 *  
-	 */
-	public void Respuesta(String id, Object parametro) {
+    public String getId() {
+        return id;
+    }
 
-	}
+    public void setId(String id) {
+        this.id = id;
+    }
 
-	/**
-	 *  
-	 */
-	public void Respuesta() {
+    public Object getParametro() {
+        return parametro;
+    }
 
-	}
-
-	public String getId() {
-		return null;
-	}
-
-	public void setId(String id) {
-
-	}
-
-	public Object getParametro() {
-		return null;
-	}
-
-	/**
-	 *  
-	 */
-	public void setParametro(Object parametro) {
-
-	}
-
-	public List<Respuesta> lista(Respuesta respuestas) {
-		return null;
-	}
-
+    public void setParametro(Object parametro) {
+        this.parametro = parametro;
+    }
+    
+    public static List<Respuesta> lista(Respuesta... respuestas){
+         List<Respuesta> retorno = new ArrayList<Respuesta>();
+         for(Respuesta r:respuestas){
+             retorno.add(r);
+         }
+         return retorno;
+    }
 }
