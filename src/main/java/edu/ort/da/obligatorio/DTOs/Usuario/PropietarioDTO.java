@@ -1,5 +1,8 @@
 package edu.ort.da.obligatorio.DTOs.Usuario;
 
+import lombok.Data;
+
+@Data
 public class PropietarioDTO {
 
 	private String cedulaDeIdentidad;
@@ -17,61 +20,6 @@ public class PropietarioDTO {
 	}
 
 	public PropietarioDTO() {
-
-	}
-
-	public String getCedula() {
-		return null;
-	}
-
-	public String getContrasena() {
-		return null;
-	}
-
-	public String getNombre() {
-		return null;
-	}
-
-	public String getApellido() {
-		return null;
-	}
-
-	public int getEstado() {
-		return 0;
-	}
-
-	/**
-	 *  
-	 */
-	public void setCedula(String cedulaDeIdentidad) {
-
-	}
-
-	/**
-	 *  
-	 */
-	public void setContrasena(String contrasena) {
-
-	}
-
-	/**
-	 *  
-	 */
-	public void setNombre(String nombre) {
-
-	}
-
-	/**
-	 *  
-	 */
-	public void setApellido(String apellido) {
-
-	}
-
-	/**
-	 *  
-	 */
-	public void setEstado(int estado) {
 
 	}
 
