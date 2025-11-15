@@ -8,8 +8,6 @@ public class ObligatorioApplication {
 
 	public static void main(String[] args) {
 		SpringApplication.run(ObligatorioApplication.class, args);
-		//Ejecucion datos de prueba
-		DatosDePrueba.main(args);
 	}
 
 }

@@ -3,12 +3,16 @@ package edu.ort.da.obligatorio.Modelo;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
 @SuperBuilder
 @NoArgsConstructor
 public abstract class Usuario {
+    
+    @Setter(AccessLevel.NONE)
     private Long id;
+
     private String CedulaDeIdentidad;
 
     @Getter(AccessLevel.NONE)
@@ -35,6 +39,10 @@ public abstract class Usuario {
 
     public Long getId(){
         return this.id;
+    }
+
+    public String getCedula(){
+        return this.CedulaDeIdentidad;
     }
 
     public boolean coincideContrasenia(String pwd) {

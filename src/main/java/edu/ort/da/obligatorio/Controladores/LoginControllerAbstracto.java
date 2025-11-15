@@ -16,7 +16,11 @@ import jakarta.servlet.http.HttpSession;
 @RestController
 public abstract class LoginControllerAbstracto {
 
-    Fachada fachada = Fachada.getInstancia();
+    protected final Fachada fachada;
+
+    public LoginControllerAbstracto(Fachada fachada) { 
+        this.fachada = fachada;
+    }
 
     @PostMapping("/login")
     public List<Respuesta> login(HttpSession sesion, @RequestBody LoginDTO dto) {
@@ -31,7 +35,8 @@ public abstract class LoginControllerAbstracto {
                 return Respuesta.lista(new Respuesta("Login exitoso", destino));
 
             } else {
-                // Caso 3a: Fallo de credenciales (si getUsuario devuelve null y no lanza excepción)
+                // Caso 3a: Fallo de credenciales (si getUsuario devuelve null y no lanza
+                // excepción)
                 return Respuesta.lista(new Respuesta("Error", "Credenciales incorrectas o usuario no encontrado."));
             }
 

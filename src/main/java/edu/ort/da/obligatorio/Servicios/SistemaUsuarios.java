@@ -5,25 +5,25 @@ import java.util.Collection;
 import java.util.List;
 
 import javax.security.auth.login.LoginException;
+import org.springframework.stereotype.Service;
 
 import edu.ort.da.obligatorio.DTOs.Usuario.LoginDTO;
 import edu.ort.da.obligatorio.DTOs.Usuario.PropietarioDTO;
 import edu.ort.da.obligatorio.Modelo.Administrador;
+import edu.ort.da.obligatorio.Modelo.Bonificacion;
 import edu.ort.da.obligatorio.Modelo.Propietario;
 import edu.ort.da.obligatorio.Modelo.PropietarioBonificacion;
 import edu.ort.da.obligatorio.Modelo.Sesion;
 import edu.ort.da.obligatorio.Modelo.Usuario;
 
+@Service
 class SistemaUsuarios {
 
     private static Long nextUserId = 1L;
     private Collection<Propietario> propietarios = new ArrayList<Propietario>();
     private Collection<Administrador> administradores = new ArrayList<Administrador>();
     private Collection<Sesion> sesiones = new ArrayList<Sesion>();
-
-    private void SistemaUsuarios() {
-
-    }
+    private Collection<Bonificacion> bonificaciones = new ArrayList<Bonificacion>();
 
     public Propietario getUsuarioXCedula(String cedula) {
         return null;
@@ -133,7 +133,6 @@ class SistemaUsuarios {
     }
 
     Propietario getPropietario(String nombreUsuario) {
-        System.out.println(nombreUsuario);
         return propietarios.stream()
                 .filter(p -> p.getNombre().equals(nombreUsuario))
                 .findFirst()
@@ -142,5 +141,21 @@ class SistemaUsuarios {
 
     public static synchronized Long getNextId() {
         return nextUserId++;
+    }
+
+    public Propietario getPropietarioById(Long userId) {
+        return propietarios.stream()
+                .filter(p -> p.getId().equals(userId))
+                .findFirst()
+                .orElse(null);
+    }
+
+    public void addBonificacion(Bonificacion bonificacion) {
+        bonificaciones.add(bonificacion);
+    }
+
+    public void asignarBonificacion(PropietarioBonificacion pb) {
+        Propietario propietario = pb.getPropietario();
+        propietario.agregarBonificacion(pb);
     }
 }

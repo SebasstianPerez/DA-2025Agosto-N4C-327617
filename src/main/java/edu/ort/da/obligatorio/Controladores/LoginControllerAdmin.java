@@ -2,11 +2,13 @@ package edu.ort.da.obligatorio.Controladores;
 
 import javax.security.auth.login.LoginException;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import edu.ort.da.obligatorio.DTOs.Usuario.LoginDTO;
 import edu.ort.da.obligatorio.Modelo.Usuario;
+import edu.ort.da.obligatorio.Servicios.Fachada;
 import jakarta.servlet.http.HttpSession;
 
 @RestController
@@ -14,6 +16,11 @@ import jakarta.servlet.http.HttpSession;
 public class LoginControllerAdmin extends LoginControllerAbstracto {
     
     final String ADMINISTRADOR_STATE_KEY = "AdminDashboard.html";
+
+    @Autowired 
+    public LoginControllerAdmin(Fachada fachada) {
+        super(fachada);
+    }
 
     @Override
     protected void guardarEstadoUsuario(HttpSession sesion, Usuario usuario) {
