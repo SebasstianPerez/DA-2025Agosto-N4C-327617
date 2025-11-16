@@ -74,6 +74,8 @@ public class DatosDePrueba implements CommandLineRunner {
 
         Puesto puesto = new Puesto("Accesos1", "Accesos", tarifas);
 
+        System.out.println(puesto);
+
         fachada.agregarPuesto(puesto);
 
         Bonificacion b1 = new Bonificacion("Exonerados", exoneradosStrategy);
@@ -90,7 +92,8 @@ public class DatosDePrueba implements CommandLineRunner {
 
         fachada.agregarPropietarioBonificacion(pb);
 
-        System.out.println(propietario);
+        fachada.emularTransito(puesto.getDireccion(), v1.getMatricula());
+        fachada.emularTransito(puesto.getDireccion(), v1.getMatricula());
 
         System.out.println("--- PRECARGA FINALIZADA ---");
     }

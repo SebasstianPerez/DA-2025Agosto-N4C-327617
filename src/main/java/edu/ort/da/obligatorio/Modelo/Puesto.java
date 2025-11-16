@@ -40,7 +40,7 @@ public class Puesto {
         }
 
         return this.tarifas.stream()
-            .filter(t -> t.getCategoriaVehiculo().getNombre().equals(categoriaVehiculo))
+            .filter(t -> t.getCategoriaVehiculo().getNombre().equals(categoriaVehiculo.getNombre()))
             .findFirst()
             .orElse(null); 
     }

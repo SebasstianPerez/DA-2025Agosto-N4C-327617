@@ -13,6 +13,6 @@ public class EstrategiaFrecuentes implements EstrategiaBonificacion {
             return montoBase * DESCUENTO_PORCENTAJE;
         }
 
-        return 0.0;
+        return montoBase;
     }
 }

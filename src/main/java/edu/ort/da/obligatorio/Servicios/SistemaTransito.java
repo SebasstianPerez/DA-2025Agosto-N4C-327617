@@ -76,35 +76,44 @@ public class SistemaTransito {
 				.collect(Collectors.toList());
 	}
 
-	public Collection<Transito> getTransitosHoy(String cedula) {
+	public Long getCantidadTransitosHoy(String cedula) {
 		Collection<Transito> transitos = getTransitosRealizados(cedula);
 		LocalDateTime inicioHoy = LocalDate.now().atStartOfDay();
 
-		return transitos.stream()
+		int size = transitos.stream()
 				.filter(t -> t.getFecha().isAfter(inicioHoy) || t.getFecha().isEqual(inicioHoy))
-				.collect(Collectors.toList());
+				.collect(Collectors.toList()).size();
+
+		return Long.valueOf(size);
 	}
 
 	public void emularTransito(String puestoDireccion, Vehiculo vehiculo, Propietario propietario) {
 		Puesto puesto = getPuestoByDireccion(puestoDireccion);
 		Tarifa tarifa = puesto.getTarifaParaCategoria(vehiculo.getCategoria());
+		
 		double montoBase = tarifa.getMonto();
+
+		// Que pasa si el vehiculo no es del propietario?
 
 		// Buscar bonificacion
 		double montoNetoAPagar = propietario.calcularMontoNetoAPagar(
 				montoBase,
 				puesto,
 				LocalDateTime.now(),
-				Long.valueOf(getTransitosHoy(propietario.getCedula()).size()));
+				Long.valueOf(getCantidadTransitosHoy(propietario.getCedula())));
+
+		double montoDescuento = montoBase - montoNetoAPagar;
+
+		Transito transito = new Transito(vehiculo, puesto, propietario.getCedula(), montoBase, montoNetoAPagar, montoDescuento);
 
 		if (propietario.getSaldo() < montoNetoAPagar) {
 			throw new RuntimeException("Saldo insuficiente para peaje. Monto requerido: " + montoNetoAPagar);
 		}
 
-		double montoDescuento = montoBase - montoNetoAPagar;
-		propietario.cobrarTransito(montoDescuento);
+		propietario.cobrarTransito(montoNetoAPagar);
 
-		//TODO VERIFICAR
+		transito.setId(getNextTransitoId());
+		transitos.add(transito);
 	}
 
 }

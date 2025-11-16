@@ -1,19 +1,28 @@
 package edu.ort.da.obligatorio.Servicios;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.stream.Collectors;
 
 import javax.security.auth.login.LoginException;
+
 import org.springframework.stereotype.Service;
 
 import edu.ort.da.obligatorio.DTOs.Usuario.LoginDTO;
 import edu.ort.da.obligatorio.DTOs.Usuario.PropietarioDTO;
 import edu.ort.da.obligatorio.Modelo.Administrador;
 import edu.ort.da.obligatorio.Modelo.Bonificacion;
+import edu.ort.da.obligatorio.Modelo.Deshabilitado;
+import edu.ort.da.obligatorio.Modelo.EstadoPropietario;
+import edu.ort.da.obligatorio.Modelo.Habilitado;
+import edu.ort.da.obligatorio.Modelo.Penalizado;
 import edu.ort.da.obligatorio.Modelo.Propietario;
 import edu.ort.da.obligatorio.Modelo.PropietarioBonificacion;
 import edu.ort.da.obligatorio.Modelo.Sesion;
+import edu.ort.da.obligatorio.Modelo.Suspendido;
 import edu.ort.da.obligatorio.Modelo.Usuario;
 
 @Service
@@ -24,6 +33,27 @@ class SistemaUsuarios {
     private Collection<Administrador> administradores = new ArrayList<Administrador>();
     private Collection<Sesion> sesiones = new ArrayList<Sesion>();
     private Collection<Bonificacion> bonificaciones = new ArrayList<Bonificacion>();
+
+    private static final List<EstadoPropietario> TODOS_LOS_ESTADOS;
+
+    static {
+        TODOS_LOS_ESTADOS = Arrays.asList(
+            Habilitado.getInstancia(),
+            Deshabilitado.getInstancia(),
+            Suspendido.getInstancia(),
+            Penalizado.getInstancia()
+        );
+    }
+
+    public static List<EstadoPropietario> getTodosLosEstados() {
+        return TODOS_LOS_ESTADOS;
+    }
+
+    public static List<String> obtenerNombresDeTodosLosEstados() {
+        return TODOS_LOS_ESTADOS.stream()
+            .map(EstadoPropietario::getNombreEstado) 
+            .collect(Collectors.toList());
+    }
 
     public Propietario getUsuarioXCedula(String cedula) {
         return null;
@@ -44,6 +74,10 @@ class SistemaUsuarios {
 
         Long id = getNextId();
         usuario.setId(id); 
+
+        EstadoPropietario estado = Habilitado.getInstancia();
+        usuario.setEstado(estado);
+
         propietarios.add(usuario);
     }
 
@@ -76,10 +110,16 @@ class SistemaUsuarios {
     public Propietario loginPropietario(LoginDTO datos) {
         Propietario propietario = (Propietario) login(datos.getNombre(), datos.getContrasena(), propietarios);
 
-        if (propietario != null) {
-            return propietario;
+        if (propietario == null) {
+            return null;
         }
-        return null;
+
+        if(!propietario.puedeIngresar()){
+            return null;
+        }
+
+        //Exceptions
+        return propietario;
     }
 
     public Administrador loginAdministrador(LoginDTO datos) throws LoginException {
@@ -157,5 +197,26 @@ class SistemaUsuarios {
     public void asignarBonificacion(PropietarioBonificacion pb) {
         Propietario propietario = pb.getPropietario();
         propietario.agregarBonificacion(pb);
+    }
+
+    public static EstadoPropietario getInstanciaPorNombre(String nombreEstado) {
+        return TODOS_LOS_ESTADOS.stream()
+            .filter(estado -> estado.getNombreEstado().equalsIgnoreCase(nombreEstado))
+            .findFirst() 
+            .orElseThrow(() -> new NoSuchElementException("Estado no encontrado: " + nombreEstado));
+    }
+
+    public Propietario getPropietarioByCedula(String cedula){
+        return propietarios.stream()
+            .filter(p -> p.getCedula().equals(cedula))
+            .findFirst() 
+            .orElse(null);
+    }
+
+    public void cambiarEstado(String cedula, String nombreEstadoDestino) {
+        Propietario propietario = getPropietarioByCedula(cedula);
+        EstadoPropietario estadoDestinoInstancia = getInstanciaPorNombre(nombreEstadoDestino);
+
+        propietario.cambiarEstado(estadoDestinoInstancia);
     }
 }

@@ -32,10 +32,6 @@ public class SistemaVehiculos {
 		return null;
 	}
 
-	public Vehiculo getVehiculoXMatricula(String matricula) {
-		return null;
-	}
-
 	public void asignarVehiculoAPropietario(String matricula, Propietario propietario) {
 		Vehiculo vehiculo = buscarVehiculoPorMatricula(matricula);
 		System.out.println(vehiculo);
@@ -49,7 +45,7 @@ public class SistemaVehiculos {
 		}
 	}
 
-	private Vehiculo buscarVehiculoPorMatricula(String matricula) {
+	public Vehiculo buscarVehiculoPorMatricula(String matricula) {
 		return vehiculos.stream()
 				.filter(p -> p.getMatricula().equals(matricula))
 				.findFirst()

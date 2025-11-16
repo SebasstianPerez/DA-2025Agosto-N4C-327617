@@ -23,7 +23,7 @@ public class Propietario extends Usuario {
 
     private double saldoMinAlerta = 500;
 
-    private String estado = "";
+    private EstadoPropietario estado;
 
     @ToString.Exclude
     private Collection<Notificacion> notificaciones;
@@ -56,25 +56,25 @@ public class Propietario extends Usuario {
                 .findFirst()
                 .orElse(null);
 
-        double descuento = 0.0;
+        double montoNetoAPagar = montoBase;
 
         if (bonificacionActiva != null) {
-            descuento = bonificacionActiva.getBonificacion().calcularDescuento(
+            montoNetoAPagar = bonificacionActiva.getBonificacion().calcularDescuento(
                     fechaTransito,
                     montoBase,
                     transitosPreviosHoy);
         }
 
-        double montoNetoAPagar = montoBase - descuento;
+        // double descuento = montoBase - montoNetoAPagar;
 
         return Math.max(0.0, montoNetoAPagar);
     }
 
     public boolean cobrarTransito(double monto) {
-        if(monto > this.saldo){
+        if (monto > this.saldo) {
             return false;
         }
-        
+
         this.setSaldo(saldo - monto);
         return true;
     }
@@ -87,4 +87,28 @@ public class Propietario extends Usuario {
         vehiculos.add(vehiculo);
     }
 
+    public boolean puedeIngresar() {
+        return estado.puedeIngresarAlSistema();
+    }
+
+    public void cambiarEstado(EstadoPropietario estadoDestinoInstancia) {
+        String nuevoEstado = estadoDestinoInstancia.getNombreEstado();
+
+        switch (nuevoEstado) {
+            case "Habilitado":
+                this.estado.habilitar(this);
+                break;
+            case "Penalizado":
+                this.estado.penalizar(this);
+                break;
+            case "Suspendido":
+                this.estado.suspender(this);
+                break;
+            case "Deshabilitado":
+                this.estado.deshabilitar(this);
+                break;
+            default:
+                throw new IllegalArgumentException("Destino de estado inválido.");
+        }
+    }
 }

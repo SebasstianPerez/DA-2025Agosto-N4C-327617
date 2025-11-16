@@ -1,6 +1,7 @@
 package edu.ort.da.obligatorio.Servicios;
 
 import java.util.Collection;
+import java.util.List;
 
 import javax.security.auth.login.LoginException;
 
@@ -81,7 +82,7 @@ public class Fachada {
 
         PropietarioDashboardDTO ret = new PropietarioDashboardDTO(
                 propietario.getNombre(),
-                propietario.getEstado(),
+                propietario.getEstado().getNombreEstado(),
                 propietario.getSaldo()
         );
 
@@ -120,9 +121,17 @@ public class Fachada {
     }
 
     public void emularTransito(String puestoDireccion, String matricula){
-        Vehiculo vehiculo = sistemaVehiculos.getVehiculoXMatricula(matricula);
+        Vehiculo vehiculo = sistemaVehiculos.buscarVehiculoPorMatricula(matricula);
         Propietario propietario = vehiculo.getPropietario();
 
         sistemaTransito.emularTransito(puestoDireccion, vehiculo, propietario);
+    }
+
+    public List<String> obtenerEstadosPropietario() {
+        return sistemaUsuarios.obtenerNombresDeTodosLosEstados();
+    }
+
+    public void cambiarEstadoPropietario(String cedula, String nombreEstado){
+        sistemaUsuarios.cambiarEstado(cedula, nombreEstado);
     }
 }
