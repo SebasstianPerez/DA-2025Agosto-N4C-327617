@@ -5,7 +5,7 @@ import java.util.List;
 import javax.security.auth.login.LoginException;
 
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import edu.ort.da.obligatorio.DTOs.Usuario.LoginDTO;
@@ -18,32 +18,33 @@ public abstract class LoginControllerAbstracto {
 
     protected final Fachada fachada;
 
-    public LoginControllerAbstracto(Fachada fachada) { 
+    public LoginControllerAbstracto(Fachada fachada) {
         this.fachada = fachada;
     }
 
     @PostMapping("/login")
-    public List<Respuesta> login(HttpSession sesion, @RequestBody LoginDTO dto) {
+    public List<Respuesta> login(
+            HttpSession sesion,
+            @RequestParam String cedula,
+            @RequestParam String contrasena) {
         try {
+
+            LoginDTO dto = new LoginDTO();
+            dto.setCedula(cedula);
+            dto.setContrasena(contrasena);
             Usuario usuarioLogueado = getUsuario(dto);
 
             if (usuarioLogueado != null) {
                 guardarEstadoUsuario(sesion, usuarioLogueado);
 
-                // 3. Respuesta de éxito
                 String destino = "redirect:" + getDestinoLoginExitoso();
-                return Respuesta.lista(new Respuesta("Login exitoso", destino));
-
+                return Respuesta.lista(new Respuesta("loginExitoso", destino));
             } else {
-                // Caso 3a: Fallo de credenciales (si getUsuario devuelve null y no lanza
-                // excepción)
-                return Respuesta.lista(new Respuesta("Error", "Credenciales incorrectas o usuario no encontrado."));
+                return Respuesta.lista(new Respuesta("error", "Credenciales incorrectas o usuario no encontrado."));
             }
 
         } catch (LoginException e) {
-            // Caso 3b: Fallo por regla de negocio (Ud. ya está logueado o deshabilitado)
-            // Usar e.getMessage() para devolver el mensaje de error específico.
-            return Respuesta.lista(new Respuesta("Error", e.getMessage()));
+            return Respuesta.lista(new Respuesta("error", e.getMessage()));
         }
     }
 

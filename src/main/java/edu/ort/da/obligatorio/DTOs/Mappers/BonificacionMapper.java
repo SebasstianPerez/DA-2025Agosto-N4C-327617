@@ -3,7 +3,6 @@ package edu.ort.da.obligatorio.DTOs.Mappers;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
 import java.util.stream.Collectors;
 
 import edu.ort.da.obligatorio.DTOs.Usuario.BonificacionAsignadaDTO;
@@ -28,16 +27,33 @@ public class BonificacionMapper {
         
         BonificacionAsignadaDTO dto = new BonificacionAsignadaDTO();
         
-        // 1. Nombre de la Bonificación (Navegación: PropietarioBonificacion -> Bonificacion)
         dto.setNombreBonificacion(propBonificacion.getBonificacion().getNombre()); 
+
+        dto.setCedula(propBonificacion.getPropietario().getCedula());
+
+        dto.setDireccionPuesto(propBonificacion.getPuesto().getDireccion());
         
-        // 2. Nombre del Puesto (Navegación: PropietarioBonificacion -> Puesto)
         dto.setNombrePuesto(propBonificacion.getPuesto().getNombre()); 
-        
-        // 3. Fecha de Asignación (Directo de PropietarioBonificacion)
-        // Usamos toString() o un SimpleDateFormat si fuera necesario un formato específico.
+
         dto.setFechaAsignada(propBonificacion.getFechaAsignada().toString()); 
         
+        return dto;
+    }
+
+    public static Collection<BonificacionDTO> mapToListDto(Collection<Bonificacion> bonificaciones){
+        if(bonificaciones == null){
+            return Collections.emptyList();
+        }
+        return bonificaciones.stream()
+                .map(BonificacionMapper::mapToBonificacionDTO)
+                .collect(Collectors.toList());
+    }
+
+    public static BonificacionDTO mapToBonificacionDTO(Bonificacion bonificacion){
+        if(bonificacion == null) return null;
+
+        BonificacionDTO dto = new BonificacionDTO();
+        dto.setNombre(bonificacion.getNombre());
         return dto;
     }
 

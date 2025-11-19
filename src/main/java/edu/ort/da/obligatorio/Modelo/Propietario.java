@@ -4,6 +4,10 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import edu.ort.da.obligatorio.Observador.Observable;
+import edu.ort.da.obligatorio.Observador.ObservableAbstracto;
+import edu.ort.da.obligatorio.Observador.ObservableConcreto;
+import edu.ort.da.obligatorio.Observador.Observador;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -17,7 +21,7 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = false)
-public class Propietario extends Usuario {
+public class Propietario extends Usuario implements Observable {
 
     private double saldo;
 
@@ -34,6 +38,21 @@ public class Propietario extends Usuario {
     @ToString.Exclude
     private Collection<PropietarioBonificacion> bonificaciones;
 
+    @ToString.Exclude
+    private Collection<Transito> transitos;
+
+    private ObservableConcreto observable;
+
+    public enum Eventos {
+        NUEVA_NOTIFICACION,
+        CAMBIO_ESTADO,
+        NUEVO_TRANSITO,
+        BONIFICACION_ASIGNADA,
+        NUEVO_VEHICULO
+    }
+
+
+
     public Propietario(String cedulaDeIdentidad, String contrasena, String nombre, String apellido, double saldo) {
 
         super(cedulaDeIdentidad, contrasena, nombre, apellido);
@@ -42,13 +61,15 @@ public class Propietario extends Usuario {
         this.notificaciones = new ArrayList<>();
         this.vehiculos = new ArrayList<>();
         this.bonificaciones = new ArrayList<>();
+        this.transitos = new ArrayList<>();
+        this.observable = new ObservableConcreto();
     }
 
     public String getAlerta() {
         return null;
     }
 
-    public double calcularMontoNetoAPagar(double montoBase, Puesto puesto, LocalDateTime fechaTransito,
+    public ResultadoCalculoTransito calcularMontoNetoAPagar(double montoBase, Puesto puesto, LocalDateTime fechaTransito,
             Long transitosPreviosHoy) {
 
         PropietarioBonificacion bonificacionActiva = this.bonificaciones.stream()
@@ -65,9 +86,9 @@ public class Propietario extends Usuario {
                     transitosPreviosHoy);
         }
 
-        // double descuento = montoBase - montoNetoAPagar;
+        ResultadoCalculoTransito resultado = new ResultadoCalculoTransito(Math.max(0.0, montoNetoAPagar), bonificacionActiva);
 
-        return Math.max(0.0, montoNetoAPagar);
+        return resultado;
     }
 
     public boolean cobrarTransito(double monto) {
@@ -81,10 +102,22 @@ public class Propietario extends Usuario {
 
     public void agregarBonificacion(PropietarioBonificacion bonificacion) {
         this.bonificaciones.add(bonificacion);
+        observable.avisar(Eventos.BONIFICACION_ASIGNADA);
     }
 
     public void addVehiculo(Vehiculo vehiculo) {
-        vehiculos.add(vehiculo);
+        this.vehiculos.add(vehiculo);
+        observable.avisar(Eventos.NUEVO_VEHICULO);
+    }
+
+    public void agregarNotificacion(Notificacion notificacion) {
+        this.notificaciones.add(notificacion);
+        observable.avisar(Eventos.NUEVA_NOTIFICACION);
+    }
+
+    public void agregarTransito(Transito transito) {
+        this.transitos.add(transito);
+        observable.avisar(Eventos.NUEVO_TRANSITO);
     }
 
     public boolean puedeIngresar() {
@@ -95,20 +128,24 @@ public class Propietario extends Usuario {
         String nuevoEstado = estadoDestinoInstancia.getNombreEstado();
 
         switch (nuevoEstado) {
-            case "Habilitado":
-                this.estado.habilitar(this);
-                break;
-            case "Penalizado":
-                this.estado.penalizar(this);
-                break;
-            case "Suspendido":
-                this.estado.suspender(this);
-                break;
-            case "Deshabilitado":
-                this.estado.deshabilitar(this);
-                break;
-            default:
-                throw new IllegalArgumentException("Destino de estado inválido.");
+            case "Habilitado" -> this.estado.habilitar(this);
+            case "Penalizado" -> this.estado.penalizar(this);
+            case "Suspendido" -> this.estado.suspender(this);
+            case "Deshabilitado" -> this.estado.deshabilitar(this);
+            default -> throw new IllegalArgumentException("Destino de estado inválido.");
         }
+
+        observable.avisar(Eventos.CAMBIO_ESTADO);
+    }
+
+    @Override
+    public void agregarObservador(Observador obs) {
+        observable.agregarObservador(obs);
+        System.out.println("Observador agregado: " + observable.toString());
+    }
+
+    @Override
+    public void quitarObservador(Observador obs) {
+        observable.quitarObservador(obs);
     }
 }

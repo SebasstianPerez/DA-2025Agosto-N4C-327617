@@ -10,6 +10,7 @@ import lombok.Data;
 @Data
 public class PropietarioDashboardDTO {
     private String nombre;
+    private String cedula;
     private String estado;
     private double saldoActual;
 
@@ -18,8 +19,9 @@ public class PropietarioDashboardDTO {
     private Collection<TransitoDTO> transitos = new ArrayList<>();
     private Collection<NotificacionDTO> notificaciones = new ArrayList<>();
 
-    public PropietarioDashboardDTO(String nombre, String estado, double saldoActual) {
+    public PropietarioDashboardDTO(String nombre, String cedula, String estado, double saldoActual) {
         this.nombre = nombre;
+        this.cedula = cedula;
         this.estado = estado;
         this.saldoActual = saldoActual;
     }

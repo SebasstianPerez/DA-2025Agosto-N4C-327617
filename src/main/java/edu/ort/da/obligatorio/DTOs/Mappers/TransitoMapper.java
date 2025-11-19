@@ -2,6 +2,7 @@ package edu.ort.da.obligatorio.DTOs.Mappers;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 import java.util.stream.Collectors;
 
 import edu.ort.da.obligatorio.DTOs.Transito.TransitoDTO;
@@ -27,6 +28,9 @@ public class TransitoMapper {
         TransitoDTO dto = new TransitoDTO();
 
         dto.setFecha(transito.getFecha());
+        dto.setPuestoDireccion(transito.getPuesto().getDireccion());
+        dto.setCategoria(transito.getVehiculo().getCategoria().getNombre());
+        dto.setBonificacion(transito.getPropietarioBonificacion().getBonificacion().getNombre());
         dto.setMontoTarifa(transito.getMontoTarifaBase());
         dto.setMontoBonificacion(transito.getMontoBonificacion());
         dto.setMontoPagado(transito.getMontoPagado());

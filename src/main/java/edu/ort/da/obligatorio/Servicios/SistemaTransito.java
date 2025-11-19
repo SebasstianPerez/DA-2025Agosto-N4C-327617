@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import edu.ort.da.obligatorio.Modelo.Propietario;
 import edu.ort.da.obligatorio.Modelo.PropietarioBonificacion;
 import edu.ort.da.obligatorio.Modelo.Puesto;
+import edu.ort.da.obligatorio.Modelo.ResultadoCalculoTransito;
 import edu.ort.da.obligatorio.Modelo.Tarifa;
 import edu.ort.da.obligatorio.Modelo.Transito;
 import edu.ort.da.obligatorio.Modelo.Vehiculo;
@@ -59,6 +60,7 @@ public class SistemaTransito {
 	}
 
 	public Puesto getPuestoByDireccion(String direccion) {
+		System.out.println("Buscando puesto por dirección: " + direccion);
 		return puestos.stream()
 				.filter(p -> p.getDireccion().equals(direccion))
 				.findFirst()
@@ -66,8 +68,12 @@ public class SistemaTransito {
 	}
 
 	public void asignarBonificacion(PropietarioBonificacion pb) {
+		Puesto puesto = pb.getPuesto();
+		if (puesto == null) {
+			throw new RuntimeException("Puesto no puede ser nulo al asignar bonificación");
+		}
+
 		pb.getPuesto().addPropietarioBonificacion(pb);
-		pb.getPropietario().agregarBonificacion(pb);
 	}
 
 	public Collection<Transito> getTransitosRealizados(String cedula) {
@@ -90,30 +96,40 @@ public class SistemaTransito {
 	public void emularTransito(String puestoDireccion, Vehiculo vehiculo, Propietario propietario) {
 		Puesto puesto = getPuestoByDireccion(puestoDireccion);
 		Tarifa tarifa = puesto.getTarifaParaCategoria(vehiculo.getCategoria());
-		
+
 		double montoBase = tarifa.getMonto();
 
 		// Que pasa si el vehiculo no es del propietario?
 
 		// Buscar bonificacion
-		double montoNetoAPagar = propietario.calcularMontoNetoAPagar(
+		ResultadoCalculoTransito resultado = propietario.calcularMontoNetoAPagar(
 				montoBase,
 				puesto,
 				LocalDateTime.now(),
 				Long.valueOf(getCantidadTransitosHoy(propietario.getCedula())));
 
+		double montoNetoAPagar = resultado.getMontoAPagar();
+
 		double montoDescuento = montoBase - montoNetoAPagar;
 
-		Transito transito = new Transito(vehiculo, puesto, propietario.getCedula(), montoBase, montoNetoAPagar, montoDescuento);
+		Transito transito = new Transito(vehiculo, puesto, propietario.getCedula(), montoBase, montoNetoAPagar,
+				montoDescuento, resultado.getBonificacion());
 
 		if (propietario.getSaldo() < montoNetoAPagar) {
 			throw new RuntimeException("Saldo insuficiente para peaje. Monto requerido: " + montoNetoAPagar);
 		}
 
 		propietario.cobrarTransito(montoNetoAPagar);
+		propietario.agregarTransito(transito);
+		vehiculo.agregarUnTransito(montoNetoAPagar);
 
 		transito.setId(getNextTransitoId());
 		transitos.add(transito);
 	}
 
+	public Collection<String> getDireccionesPuestos() {
+		return puestos.stream()
+				.map(Puesto::getDireccion)
+				.collect(Collectors.toList());
+	}
 }

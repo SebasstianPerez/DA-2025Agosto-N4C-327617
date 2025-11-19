@@ -34,7 +34,6 @@ public class SistemaVehiculos {
 
 	public void asignarVehiculoAPropietario(String matricula, Propietario propietario) {
 		Vehiculo vehiculo = buscarVehiculoPorMatricula(matricula);
-		System.out.println(vehiculo);
 		if (vehiculo != null) {
 
 			vehiculo.setPropietario(propietario);

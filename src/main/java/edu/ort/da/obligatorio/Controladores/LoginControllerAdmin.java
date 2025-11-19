@@ -15,7 +15,7 @@ import jakarta.servlet.http.HttpSession;
 @RequestMapping("/auth/admin")
 public class LoginControllerAdmin extends LoginControllerAbstracto {
     
-    final String ADMINISTRADOR_STATE_KEY = "AdminDashboard.html";
+    final String ADMINISTRADOR_STATE_KEY = "EmularTransito.html";
 
     @Autowired 
     public LoginControllerAdmin(Fachada fachada) {

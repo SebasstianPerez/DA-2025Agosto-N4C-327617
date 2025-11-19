@@ -9,6 +9,8 @@ import lombok.Data;
 public class TransitoDTO {
 	private String nombrePuesto;
 
+	private String puestoDireccion;
+
 	private String vehiculoMatricula;
 
 	private String categoria;

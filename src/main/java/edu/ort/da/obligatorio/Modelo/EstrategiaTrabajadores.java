@@ -3,9 +3,13 @@ package edu.ort.da.obligatorio.Modelo;
 import java.time.DayOfWeek;
 import java.time.LocalDateTime;
 
-public class EstrategiaTrabajadores implements EstrategiaBonificacion {
+public class EstrategiaTrabajadores extends EstrategiaBonificacion {
 
-    private static final double DESCUENTO_PORCENTAJE = 0.80;
+    private static final double DESCUENTO_PORCENTAJE = 0.20;
+
+    public EstrategiaTrabajadores() {
+        super("Trabajadores");
+    }
 
     @Override
     public double calcularDescuento(LocalDateTime fechaTransito, double montoBase , Long transitosPreviosHoy) {
@@ -16,6 +20,12 @@ public class EstrategiaTrabajadores implements EstrategiaBonificacion {
         }
 
         return montoBase;
+    }
+
+    @Override
+    public String obtenerBonificacionNombre() {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'obtenerBonificacionNombre'");
     }
 
 }

@@ -1,0 +1,280 @@
+:root {
+    --color-primary: #1565C0; /* Azul fuerte para bonificaciones y botones */
+    --color-secondary: #6c757d; 
+    --color-background: #f8f9fa; 
+    --color-card-bg: #ffffff; 
+    --color-border: #dee2e6; 
+    --color-text: #333;
+    --color-success: #28a745; 
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background-color: var(--color-background);
+    margin: 0;
+    padding: 30px;
+}
+
+.main-container {
+    max-width: 950px; /* Un poco más ancho para ambas secciones */
+    margin: 0 auto;
+}
+
+/* --- Estilos Comunes (Cards y Botones) --- */
+.card {
+    background-color: var(--color-card-bg);
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
+    padding: 30px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+    margin-bottom: 30px; /* Separación entre las dos tarjetas */
+}
+
+.btn-primary {
+    background-color: var(--color-primary);
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+    width: 100%;
+    transition: background-color 0.2s;
+    white-space: nowrap;
+}
+
+.btn-primary:hover {
+    background-color: #004d99;
+}
+
+label {
+    display: block;
+    font-weight: 600;
+    color: var(--color-text);
+    margin-top: 15px;
+    margin-bottom: 5px;
+}
+
+.input-field, select {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid var(--color-border);
+    border-radius: 4px;
+    box-sizing: border-box;
+    font-size: 14px;
+}
+
+/* ========================================================== */
+/* 🚦 ESTILOS PARA EMULAR TRÁNSITO (emulacion-card) */
+/* ========================================================== */
+
+/* Cabecera de Emulación */
+.emulacion-header {
+    border-bottom: 1px solid var(--color-border);
+    padding-bottom: 10px;
+    margin-bottom: 20px;
+}
+.emulacion-header h2 {
+    color: #333;
+    font-size: 24px;
+    margin: 0;
+}
+.emulacion-header p {
+    color: var(--color-secondary);
+    margin-top: 5px;
+}
+
+/* Grid de Emulación */
+.emulacion-card .form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr; 
+    gap: 30px;
+    margin-bottom: 10px;
+}
+
+/* Botón del Tránsito (Alineado bajo las columnas) */
+.emulacion-card .btn-primary {
+    margin-top: 25px;
+}
+
+/* Tarifas */
+.tarifas-title {
+    display: block;
+    font-weight: 600;
+    color: #333;
+    margin-top: 15px; 
+    margin-bottom: 5px;
+}
+
+.tarifas-muestra {
+    border: 1px solid #e9ecef;
+    border-radius: 4px;
+    padding: 10px 15px;
+}
+.tarifas-muestra table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+}
+.tarifas-muestra th, .tarifas-muestra td {
+    padding: 8px 0;
+    text-align: left;
+    border-bottom: 1px solid #f1f1f1;
+}
+.tarifas-info {
+    font-size: 12px;
+    color: var(--color-secondary);
+    margin-top: 15px;
+}
+
+/* Resultados de Emulación */
+.resultado-seccion {
+    border-top: 1px solid var(--color-border);
+    padding-top: 20px;
+    margin-top: 30px; 
+}
+.resultado-title {
+    font-size: 18px;
+    color: #333;
+    font-weight: bold;
+    margin-top: 0;
+    margin-bottom: 15px;
+}
+.resultado-seccion p {
+    margin: 8px 0;
+    font-size: 16px;
+}
+.resultado-seccion strong {
+    font-weight: normal; 
+    color: var(--color-secondary);
+    display: inline-block;
+    min-width: 150px; 
+}
+.resultado-seccion span {
+    font-weight: bold;
+    color: #000;
+}
+#saldo-luego {
+    color: var(--color-success);
+    font-size: 1.1em;
+}
+
+
+/* ========================================================== */
+/* 🎁 ESTILOS PARA ASIGNAR BONIFICACIONES (asignacion-card) */
+/* ========================================================== */
+
+/* Cabecera de Asignación */
+.asignacion-card .card-header {
+    border-bottom: 2px solid var(--color-primary); 
+    padding-bottom: 10px;
+    margin-bottom: 20px;
+}
+.asignacion-card .card-header h3 {
+    color: var(--color-primary);
+    font-size: 20px;
+    margin: 0;
+}
+
+/* Grid de Asignación */
+.asignacion-card .form-grid-2-col {
+    display: grid;
+    grid-template-columns: 1fr 1.5fr; 
+    gap: 40px;
+}
+
+/* Búsqueda de Propietario */
+.busqueda-propietario {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 30px;
+}
+.busqueda-propietario input {
+    flex-grow: 1;
+}
+
+/* Resumen del Propietario */
+.propietario-resumen {
+    background-color: #f7f7f7; 
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+    padding: 15px;
+    margin-bottom: 30px;
+}
+.propietario-resumen strong {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 5px;
+    color: var(--color-text);
+}
+.propietario-resumen p {
+    margin: 5px 0;
+    font-size: 14px;
+}
+.propietario-resumen span {
+    font-weight: bold; /* Los datos inyectados van en negrita */
+    color: #000;
+}
+
+/* Tabla de Bonificaciones Asignadas */
+.bonificaciones-asignadas h4 {
+    font-size: 16px;
+    margin-top: 0;
+    margin-bottom: 15px;
+    color: var(--color-text);
+    font-weight: 600;
+}
+.bonificaciones-asignadas table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+}
+.bonificaciones-asignadas th, 
+.bonificaciones-asignadas td {
+    padding: 8px 12px;
+    text-align: left;
+    border-bottom: 1px solid #f0f0f0;
+}
+.bonificaciones-asignadas th {
+    background-color: #e9ecef;
+    font-weight: 600;
+    color: #555;
+}
+
+/* Asignar Nueva Bonificación */
+.asignar-nueva {
+    margin-top: 30px;
+}
+.asignar-nueva h4 {
+    font-size: 16px;
+    margin-top: 0;
+    margin-bottom: 5px;
+    color: var(--color-text);
+    font-weight: 600;
+}
+.asignar-nueva p {
+    font-size: 14px;
+    color: var(--color-secondary);
+    margin-bottom: 15px;
+}
+
+/* --- Footer --- */
+.footer-admin {
+    text-align: center;
+    margin-top: 30px;
+    font-size: 12px;
+    color: var(--color-secondary);
+}
+
+/* --- Responsiveness --- */
+@media (max-width: 850px) {
+    /* En pantallas medianas y pequeñas, las secciones grandes se vuelven de una sola columna */
+    .emulacion-card .form-grid,
+    .asignacion-card .form-grid-2-col {
+        grid-template-columns: 1fr; 
+        gap: 20px;
+    }
+    .main-container {
+        padding: 0 15px; 
+    }
+}

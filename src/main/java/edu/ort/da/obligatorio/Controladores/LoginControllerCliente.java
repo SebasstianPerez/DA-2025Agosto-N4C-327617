@@ -33,6 +33,6 @@ public class LoginControllerCliente extends LoginControllerAbstracto {
 
     @Override
     protected Usuario getUsuario(LoginDTO dto) {
-        return fachada.loginPropietario(dto);
+        return fachada.getPropietario(dto.getCedula());
     }
 }

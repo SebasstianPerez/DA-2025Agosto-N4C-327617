@@ -32,8 +32,8 @@ public class DatosDePrueba implements CommandLineRunner {
     public void run(String... args) throws Exception {
 
         // AGREGAR USUARIOS
-        Propietario propietario = new Propietario("1234123", "juan1234", "JuanPerez1234", "Perez", 1000);
-        Administrador admin = new Administrador("1234123", "admin", "admin", "");
+        Propietario propietario = new Propietario("23456789", "prop.123", "Usuario", "Propietario", 1000);
+        Administrador admin = new Administrador("12345678", "admin.123", "Usuario", "Administrador");
 
         fachada.addPropietario(propietario);
         fachada.addAdministrador(admin);
@@ -53,7 +53,7 @@ public class DatosDePrueba implements CommandLineRunner {
         Vehiculo v1 = new Vehiculo("AIJ1234", cat1, "Verde", "Tera", propietario);
 
         fachada.addVehiculo(v1);
-        
+
         fachada.asignarVehiculoAPropietario(propietario, v1);
 
         // ESTRATEGIAS
@@ -72,16 +72,23 @@ public class DatosDePrueba implements CommandLineRunner {
 
         tarifas.addAll(Arrays.asList(tarifa1, tarifa2, tarifa3));
 
-        Puesto puesto = new Puesto("Accesos1", "Accesos", tarifas);
+        Collection<Tarifa> tarifas2 = new ArrayList<>();
+        Tarifa tarifa4 = new Tarifa(200, cat1);
+        Tarifa tarifa5 = new Tarifa(300, cat2);
+        Tarifa tarifa6 = new Tarifa(100, cat3);
 
-        System.out.println(puesto);
+        tarifas2.addAll(Arrays.asList(tarifa4, tarifa5, tarifa6));
+
+        Puesto puesto = new Puesto("Accesos-101", "Accesos 101", tarifas);
+        Puesto puesto2 = new Puesto("Accesos-202", "Accesos 202", tarifas2);
 
         fachada.agregarPuesto(puesto);
+        fachada.agregarPuesto(puesto2);
 
         Bonificacion b1 = new Bonificacion("Exonerados", exoneradosStrategy);
         Bonificacion b2 = new Bonificacion("Trabajadores", trabajadoresStrategy);
         Bonificacion b3 = new Bonificacion("Frecuentes", frecuentesStrategy);
-        Bonificacion b4 = new Bonificacion("Null", sinDescuentoStrategy);
+        Bonificacion b4 = new Bonificacion("Vacio", sinDescuentoStrategy);
 
         fachada.agregarBonificacion(b1);
         fachada.agregarBonificacion(b2);
@@ -89,8 +96,10 @@ public class DatosDePrueba implements CommandLineRunner {
         fachada.agregarBonificacion(b4);
 
         PropietarioBonificacion pb = new PropietarioBonificacion(propietario, puesto, b2);
+        PropietarioBonificacion pb1 = new PropietarioBonificacion(propietario, puesto2, b4);
 
-        fachada.agregarPropietarioBonificacion(pb);
+        fachada.agregarPropietarioBonificacion(propietario.getCedula(), puesto.getDireccion(), b2.getNombre());
+        fachada.agregarPropietarioBonificacion(propietario.getCedula(), puesto2.getDireccion(), b4.getNombre());
 
         fachada.emularTransito(puesto.getDireccion(), v1.getMatricula());
         fachada.emularTransito(puesto.getDireccion(), v1.getMatricula());

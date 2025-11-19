@@ -36,6 +36,11 @@ public class Vehiculo {
 		this.cantidadTransitos = 0;
 	}
 
+	public void agregarUnTransito(double monto) {
+		this.montoTotal += monto;
+		this.cantidadTransitos += 1;
+	}
+
 	
 
 }

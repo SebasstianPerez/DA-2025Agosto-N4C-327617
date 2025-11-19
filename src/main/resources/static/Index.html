@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bienvenido a nuestra Aplicación</title>
+    <!-- Carga de Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Estilos personalizados para la fuente y el color principal */
+        :root {
+            --primary-color: #1E40AF; /* Azul oscuro */
+            --secondary-color: #2563EB; /* Azul de énfasis */
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            /* Fondo que cubre toda la pantalla con un degradado sutil */
+            background: linear-gradient(135deg, #EFF6FF 0%, #DBEAFE 100%);
+        }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-4">
+
+    <!-- Tarjeta Principal de Bienvenida -->
+    <div class="w-full max-w-xl bg-white p-8 md:p-12 shadow-2xl rounded-xl text-center">
+
+        <!-- Logo/Icono de la Aplicación -->
+        <div class="flex justify-center mb-6">
+            <svg class="w-16 h-16 text-[--secondary-color] shadow-lg rounded-full p-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.618a8.802 8.802 0 011.002 5.06c0 5.42-4.48 9.8-10 9.8S2 16.54 2 11.12A8.8 8.8 0 013.382 6.502M12 2a10 10 0 0110 10" />
+            </svg>
+        </div>
+
+        <h1 class="text-3xl md:text-4xl font-extrabold text-gray-900 mb-4">
+            Bienvenido al Portal de Propietarios
+        </h1>
+        
+        <p class="text-gray-600 mb-8 max-w-md mx-auto">
+            Accede a todas las herramientas de gestión de tu propiedad. Para comenzar, por favor regístrate o ingresa a tu cuenta.
+        </p>
+
+        <!-- Botones de Acción -->
+        <div class="space-y-4 sm:space-y-0 sm:space-x-4 flex flex-col sm:flex-row justify-center">
+            
+            <!-- Botón Principal: Registro -->
+            <!-- Redirección a una página de registro hipotética -->
+            <a href="register.html"
+                class="w-full sm:w-auto py-3 px-8 bg-[--primary-color] text-white font-semibold rounded-lg shadow-lg hover:bg-[--secondary-color] transition duration-300 focus:outline-none focus:ring-2 focus:ring-[--secondary-color] focus:ring-offset-2 transform hover:scale-[1.02] inline-block"
+            >
+                Quiero Registrarme
+            </a>
+            
+            <!-- Botón Secundario: Ingreso (Login) -->
+            <!-- Redirección al archivo login.html -->
+            <a href="login.html"
+                class="w-full sm:w-auto py-3 px-8 text-[--primary-color] border-2 border-[--primary-color] font-semibold rounded-lg hover:bg-gray-100 transition duration-300 focus:outline-none focus:ring-2 focus:ring-[--primary-color] focus:ring-offset-2 inline-block"
+            >
+                Ya tengo cuenta
+            </a>
+
+        </div>
+
+        <p class="text-center text-xs text-gray-400 mt-12">
+            &copy; 2025 – Desarrollado para la gestión eficiente de propiedades.
+        </p>
+    </div>
+
+</body>
+</html>

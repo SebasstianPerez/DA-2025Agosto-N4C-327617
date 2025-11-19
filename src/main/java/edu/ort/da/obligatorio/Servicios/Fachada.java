@@ -13,6 +13,7 @@ import edu.ort.da.obligatorio.DTOs.Mappers.NotificacionMapper;
 import edu.ort.da.obligatorio.DTOs.Mappers.TransitoMapper;
 import edu.ort.da.obligatorio.DTOs.Mappers.VehiculoMapper;
 import edu.ort.da.obligatorio.DTOs.Transito.TransitoDTO;
+import edu.ort.da.obligatorio.DTOs.Usuario.AsignarBonificacionesDataDTO;
 import edu.ort.da.obligatorio.DTOs.Usuario.BonificacionAsignadaDTO;
 import edu.ort.da.obligatorio.DTOs.Usuario.LoginDTO;
 import edu.ort.da.obligatorio.DTOs.Usuario.NotificacionDTO;
@@ -24,6 +25,7 @@ import edu.ort.da.obligatorio.Modelo.CategoriaVehiculo;
 import edu.ort.da.obligatorio.Modelo.Propietario;
 import edu.ort.da.obligatorio.Modelo.PropietarioBonificacion;
 import edu.ort.da.obligatorio.Modelo.Puesto;
+import edu.ort.da.obligatorio.Modelo.Sesion;
 import edu.ort.da.obligatorio.Modelo.Vehiculo;
 
 @Service
@@ -35,7 +37,8 @@ public class Fachada {
     private SistemaTransito sistemaTransito;
 
     @Autowired
-    private Fachada(SistemaUsuarios sistemaUsuarios, SistemaVehiculos sistemaVehiculos, SistemaTransito sistemaTransito ) {
+    private Fachada(SistemaUsuarios sistemaUsuarios, SistemaVehiculos sistemaVehiculos,
+            SistemaTransito sistemaTransito) {
         this.sistemaUsuarios = sistemaUsuarios;
         this.sistemaTransito = sistemaTransito;
         this.sistemaVehiculos = sistemaVehiculos;
@@ -53,7 +56,7 @@ public class Fachada {
         sistemaUsuarios.agregarAdministrador(datos);
     }
 
-    public void addCategoriaVehiculo(CategoriaVehiculo datos){
+    public void addCategoriaVehiculo(CategoriaVehiculo datos) {
         sistemaVehiculos.agregarCategoriaVehiculo(datos);
     }
 
@@ -61,8 +64,8 @@ public class Fachada {
         return sistemaUsuarios.getAdministrador(dto);
     }
 
-    public Propietario getPropietario(String nombreUsuario) {
-        return sistemaUsuarios.getPropietario(nombreUsuario);
+    public Propietario getPropietario(String cedula) {
+        return sistemaUsuarios.getPropietario(cedula);
     }
 
     public Propietario loginPropietario(LoginDTO datos) {
@@ -82,14 +85,15 @@ public class Fachada {
 
         PropietarioDashboardDTO ret = new PropietarioDashboardDTO(
                 propietario.getNombre(),
+                propietario.getCedula(),
                 propietario.getEstado().getNombreEstado(),
-                propietario.getSaldo()
-        );
+                propietario.getSaldo());
 
         Collection<PropietarioBonificacion> bonificacionesDominio = propietario.getBonificaciones();
         Collection<BonificacionAsignadaDTO> bonificacionesDTO = BonificacionMapper.mapListToDTO(bonificacionesDominio);
         Collection<VehiculoDTO> vehiculosDTO = VehiculoMapper.mapToVehiculoDTO(propietario.getVehiculos());
-        Collection<TransitoDTO> transitosDTO = TransitoMapper.mapToTransitoDTO(sistemaTransito.getTransitosRealizados(propietario.getCedula()));
+        Collection<TransitoDTO> transitosDTO = TransitoMapper
+                .mapToTransitoDTO(sistemaUsuarios.getTransitosRealizados(propietario));
         Collection<NotificacionDTO> notificacionesDTO = NotificacionMapper.mapToDTO(propietario.getNotificaciones());
 
         ret.setTransitos(transitosDTO);
@@ -108,8 +112,14 @@ public class Fachada {
         sistemaUsuarios.addBonificacion(bonificacion);
     }
 
-    public void agregarPropietarioBonificacion(PropietarioBonificacion pb) {
-        sistemaTransito.asignarBonificacion(pb);
+    public void agregarPropietarioBonificacion(String cedula, String puestoDireccion, String bonificacionNombre) {
+        System.out.println("Fachada: Agregando bonificación '" + bonificacionNombre + "' para propietario '" + cedula
+                + "' en puesto '" + puestoDireccion + "'");
+        Propietario propietario = getPropietario(cedula);
+        Puesto puesto = getPuestoByDireccion(puestoDireccion);
+
+        // System.out.println("Fachada: Obtenido propietario: " + propietario+", puesto: " + puesto);
+        sistemaUsuarios.asignarBonificacion(propietario, puesto, bonificacionNombre);
     }
 
     public void asignarVehiculoAPropietario(Propietario propietario, Vehiculo v1) {
@@ -120,7 +130,18 @@ public class Fachada {
         sistemaVehiculos.agregarVehiculo(v1);
     }
 
-    public void emularTransito(String puestoDireccion, String matricula){
+    public void emularTransito(String puestoDireccion, String matricula) {
+        ejecutarLogicaTransito(puestoDireccion, matricula);
+    }
+
+    public void emularTransitoApi(TransitoDTO transitoDTO) {
+        String puestoDireccion = transitoDTO.getPuestoDireccion();
+        String matricula = transitoDTO.getVehiculoMatricula();
+
+        ejecutarLogicaTransito(puestoDireccion, matricula);
+    }
+
+    public void ejecutarLogicaTransito(String puestoDireccion, String matricula) {
         Vehiculo vehiculo = sistemaVehiculos.buscarVehiculoPorMatricula(matricula);
         Propietario propietario = vehiculo.getPropietario();
 
@@ -131,7 +152,38 @@ public class Fachada {
         return sistemaUsuarios.obtenerNombresDeTodosLosEstados();
     }
 
-    public void cambiarEstadoPropietario(String cedula, String nombreEstado){
+    public void cambiarEstadoPropietario(String cedula, String nombreEstado) {
         sistemaUsuarios.cambiarEstado(cedula, nombreEstado);
+    }
+
+    public Collection<Puesto> obtenerPuestos() {
+        return sistemaTransito.getPuestos();
+    }
+
+    public Collection<String> obtenerBonificaciones() {
+        return sistemaUsuarios.getBonificacionesNombre();
+    }
+
+    public AsignarBonificacionesDataDTO obtenerDataAsignarBonificacion() {
+        AsignarBonificacionesDataDTO dto = new AsignarBonificacionesDataDTO();
+        dto.setBonificaciones(sistemaUsuarios.getBonificacionesNombre());
+        dto.setDireccionPuesto(sistemaTransito.getDireccionesPuestos());
+        return dto;
+    }
+
+    public void asignarBonificacionApi(BonificacionAsignadaDTO dto) {
+        Propietario propietario = getPropietario(dto.getCedula());
+        Puesto puesto = sistemaTransito.getPuestoByDireccion(dto.getDireccionPuesto());
+        sistemaUsuarios.asignarBonificacionApi(propietario, puesto, dto.getNombreBonificacion());
+
+    }
+
+    public Puesto getPuestoByDireccion(String direccion) {
+        return sistemaTransito.getPuestoByDireccion(direccion);
+    }
+
+    public void logout(Sesion sesion) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'logout'");
     }
 }

@@ -9,6 +9,8 @@ public class BonificacionDTO {
 
 	private String nombre;
 
+	private String cedula;
+
 	private String puesto;
 
 	private LocalDateTime fechaAsignada;

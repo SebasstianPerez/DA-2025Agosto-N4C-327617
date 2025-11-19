@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Monitor de actividad</title>
+    <link rel="stylesheet" href="./style/dashboard.css">
+    <script src='vistaWeb.js'></script>
+
+</head>
+
+<body>
+    <script src='utilesVista.js'></script>
+    <div class="dashboard-wrapper">
+        <div class="dashboard-header">
+            <h1>Tablero de control del propietario</h1>
+            <a href="#" class="salir-link">Salir</a>
+        </div>
+
+        <h2 class="section-title">Resumen del propietario</h2>
+        <div class="dashboard-grid summary" id="resumen-propietario">
+
+            <div class="card">
+                <span class="summary-label">Nombre Completo</span>
+                <p class="summary-value" id="nombre-completo">Cargando...</p>
+            </div>
+
+            <div class="card">
+                <span class="summary-label">Estado</span>
+                <p class="summary-value" id="estado">Cargando...</p>
+            </div>
+
+            <div class="card saldo-actual">
+                <span class="summary-label">Saldo Actual</span>
+                <p class="summary-value" id="saldo-actual">Cargando...</p>
+            </div>
+
+        </div>
+
+        <div class="dashboard-grid details">
+
+            <div class="card" id="bonificaciones-asignadas">
+                <span class="card-title">Bonificaciones asignadas</span>
+                <div id="tabla-bonificaciones">
+                    <p>Cargando bonificaciones...</p>
+                </div>
+            </div>
+
+            <div class="card" id="vehiculos-registrados">
+                <span class="card-title">Vehículos registrados</span>
+                <div id="tabla-vehiculos">
+                    <p>Cargando vehículos...</p>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="full-width-section">
+            <h2 class="section-title">Tránsitos realizados</h2>
+            <div class="card" id="transitos-realizados">
+                <div id="tabla-transitos">
+                    <p>Cargando tránsitos...</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="full-width-section system-notifications">
+            <h2 class="section-title">Notificaciones del sistema</h2>
+            <div class="notifications-section">
+                <button id="btn-borrar-notificaciones">Borrar notificaciones</button>
+            </div>
+        </div>
+
+    </div>
+
+
+    <script>
+        urlIniciarVista = '/dashboard/vistaConectada';
+        // urlCierreVista = "/acceso/logoutAgenda";
+        urlRegistroSSE = "/dashboard/registrarSSE"; // Al cargarse el menu propietario se registra el SSE
+
+        // --- FUNCIÓN PRINCIPAL DE CARGA Y ACTUALIZACIÓN ---
+        /**
+         * Función que recibe el array de Respuesta del servidor y extrae el DTO del Dashboard.
+         * Esta función se usa tanto para la carga inicial como para las actualizaciones SSE.
+         */
+        function mostrar_datos(data) {
+            // 1. EXTRAER el DTO del Dashboard
+            console.log("Datos recibidos en mostrar_datos:", data);
+
+            const {
+                estado,
+                nombre,
+                saldoActual,
+                bonificaciones,
+                vehiculos,
+                transitos,
+                notificaciones // Asumimos que también recibes notificaciones
+            } = data;
+
+            // 3. ACTIVAR todas las funciones de pintado:
+            mostrar_resumen(estado, nombre, saldoActual);
+            mostrar_bonificaciones(bonificaciones);
+            mostrar_vehiculos(vehiculos);
+            mostrar_transitos(transitos);
+            // Asumimos una nueva función para notificaciones
+            mostrar_notificaciones(notificaciones);
+
+            // NOTA: Se eliminó el uso de 'divTablaDashboard' ya que el nuevo HTML usa IDs específicos.
+        }
+
+        // ----------------------------------------------------------------------
+
+        function mostrar_resumen(estado, nombre, saldoActual) {
+            // Formatear el saldo a moneda (ej: $ 960.00) si es un número
+            const saldoFormateado = (typeof saldoActual === 'number') ? `$ ${saldoActual.toFixed(2)}` : saldoActual;
+
+            document.getElementById('nombre-completo').textContent = nombre;
+            document.getElementById('estado').textContent = estado;
+            document.getElementById('saldo-actual').textContent = saldoFormateado;
+        }
+
+        function mostrar_bonificaciones(data) {
+            const contenedor = document.getElementById('tabla-bonificaciones');
+            if (!data || data.length === 0) {
+                contenedor.innerHTML = '<p>No hay bonificaciones asignadas.</p>';
+                return;
+            }
+            const htmlTabla = crearTablaDesdeJson(data);
+            contenedor.innerHTML = htmlTabla;
+        }
+
+        function mostrar_vehiculos(data) {
+            const contenedor = document.getElementById('tabla-vehiculos');
+            if (!data || data.length === 0) {
+                contenedor.innerHTML = '<p>No hay vehículos registrados.</p>';
+                return;
+            }
+            // Mantenemos la función de clic para mostrar detalles
+            const htmlTabla = crearTablaDesdeJson(data, (indice, objeto) => {
+                mostrarMensaje(`Detalles del vehículo: ${objeto.matricula} (${objeto.modelo})`);
+            });
+            contenedor.innerHTML = htmlTabla;
+        }
+
+        function mostrar_transitos(data) {
+            const contenedor = document.getElementById('tabla-transitos');
+            if (!data || data.length === 0) {
+                contenedor.innerHTML = '<p>No se han realizado tránsitos.</p>';
+                return;
+            }
+            const htmlTabla = crearTablaDesdeJson(data);
+            contenedor.innerHTML = htmlTabla;
+        }
+
+        // ----------------------------------------------------------------------
+        // --- NUEVAS FUNCIONES PARA COMPLETAR EL DASHBOARD ---
+        // ----------------------------------------------------------------------
+
+        /**
+         * Función que maneja la visualización de notificaciones.
+         * Aquí podrías inyectar el HTML para las notificaciones.
+         */
+        function mostrar_notificaciones(data) {
+            // Necesitas un div con ID para inyectar las notificaciones, 
+            // asumiremos que hay un contenedor adecuado dentro de .notifications-section.
+            const contenedor = document.querySelector('.notifications-section');
+            if (!contenedor || !data) return;
+
+            if (data.length > 0) {
+                // Ejemplo de inyección simple. Puedes usar crearTablaDesdeJson(data) si son muchos campos.
+                const notifHTML = data.map(n => `<p class="notification-item">${n.fecha}: ${n.mensaje}</p>`).join('');
+                contenedor.innerHTML = notifHTML + contenedor.querySelector('button')?.outerHTML || '';
+            } else {
+                contenedor.innerHTML = '<p>No hay notificaciones nuevas.</p>' + contenedor.querySelector('button')?.outerHTML || '';
+            }
+        }
+
+        // Manejo del botón de salir
+        document.addEventListener('DOMContentLoaded', function () {
+            const salirLink = document.querySelector('.salir-link');
+            if (salirLink) {
+                salirLink.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    // Envía una petición para cerrar la sesión y redirige al login
+                    submit('/logout', '', 'GET');
+                });
+            }
+        });
+
+        async function excepcionDeAplicacion(mensaje) {
+            await mostrarMensaje(mensaje);
+        }
+
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Emular Tránsito - Administrador</title>
+    <link rel="stylesheet" href="style/emularTransito.css">
+
+    <script src="vistaWeb.js"></script>
+</head>
+
+<body>
+    <script src="utilesVista.js"></script>
+
+    <div class="emulacion-container">
+
+        <div class="main-container">
+            <header class="emulacion-header">
+                <h2>🚦 Emular tránsito</h2>
+                <p>Seleccione un puesto, verifique sus tarifas, ingrese una matrícula y emule un tránsito.</p>
+            </header>
+
+            <div class="emulacion-card card">
+                <div class="form-grid">
+                    <div class="form-input-column">
+                        <label for="puesto">Puesto</label>
+                        <select id="puesto" name="puesto" class="input-field">
+                            <option value="" disabled selected>Seleccione un puesto</option>
+                        </select>
+
+                        <label for="matricula">Matrícula</label>
+                        <input type="text" id="matricula" name="matricula" placeholder="EJ: ABC1234"
+                            class="input-field">
+
+                        <label for="fechaHora">Fecha y hora del tránsito</label>
+                        <input type="datetime-local" id="fechaHora" name="fechaHora" placeholder="EJ: 2025-11-19 15:30"
+                            class="input-field">
+                    </div>
+
+                    <div class="tarifas-column">
+                        <span class="tarifas-title">Tarifas del puesto</span>
+                        <div id="tabla-tarifas" class="table-content">
+                            <div class="tarifas-muestra">
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th>Categoría</th>
+                                            <th>Monto</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>A (Auto)</td>
+                                            <td>$ 120.00</td>
+                                        </tr>
+                                        <tr>
+                                            <td>B (Camioneta)</td>
+                                            <td>$ 180.00</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <p class="tarifas-info">Se muestran categoría y monto actuales del puesto seleccionado.</p>
+                    </div>
+                </div>
+
+                <button id="btn-emular-transito" class="btn-primary">Emular tránsito</button>
+
+                <div class="resultado-seccion" id="resultado-transito">
+                    <h3 class="resultado-title">Resultado</h3>
+                    <p><strong>Propietario:</strong> <span id="prop-nombre">Juan Pérez</span> (<span
+                            id="prop-estado">Activo</span>)</p>
+                    <p><strong>Categoría:</strong> <span id="transito-categoria">A (Auto)</span></p>
+                    <p><strong>Bonificación:</strong> <span id="transito-bonificacion">Residente Costa de Oro
+                            (10%)</span></p>
+                    <p><strong>Costo del tránsito:</strong> <span id="transito-costo">$ 120.00</span></p>
+                    <p><strong>Saldo luego del tránsito:</strong> <span id="saldo-luego">$ 1400.75</span></p>
+                </div>
+            </div>
+
+            <div class="asignacion-card card">
+                <header class="card-header">
+                    <h3>Asignar bonificaciones</h3>
+                </header>
+
+                <div class="form-grid-2-col">
+                    <div class="col-left">
+                        <label for="bonificaciones-select">Bonificaciones definidas</label>
+                        <select id="bonificaciones-select" class="input-field">
+                            <option>Residente Costa de Oro</option>
+                        </select>
+
+                        <label for="puestos-select">Puestos definidos</label>
+                        <select id="puestos-select" class="input-field">
+                            <option>Puesto 204 - Ruta Interbalnearia</option>
+                        </select>
+                    </div>
+
+                    <div class="col-right">
+                        <label for="cedula-input">Cédula de identidad</label>
+                        <div class="busqueda-propietario">
+                            <input type="text" id="cedula-input" placeholder="12345678" class="input-field">
+                            <button id="btn-buscar-propietario" class="btn-primary">Buscar propietario</button>
+                        </div>
+
+                        <div class="propietario-resumen">
+                            <strong>Propietario</strong>
+                            <p>Nombre: <span id="prop-asignacion-nombre">Propietario Demo 12345678</span></p>
+                            <p>Estado: <span id="prop-asignacion-estado">Activo</span></p>
+                        </div>
+
+                        <div class="bonificaciones-asignadas">
+                            <h4>Bonificaciones asignadas</h4>
+                            <div class="table-container">
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th>Bonificación</th>
+                                            <th>Puesto</th>
+                                            <th>Fecha asignación</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td colspan="3">Sin bonificaciones asignadas</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <div class="asignar-nueva">
+                            <h4>Asignar nueva bonificación</h4>
+                            <p>Seleccione bonificación y puesto en las listas de la izquierda y luego asigne.</p>
+                            <button id="btn-asignar-bonificacion" class="btn-primary">Asignar bonificación</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <footer class="footer-admin">
+            © 2025 - Administración
+        </footer>
+        <script>
+            // ... Todo el código JavaScript va aquí
+            urlIniciarVista = '/transito/inicializarVista'; // Endpoint para cargar puestos y tarifas iniciales
+
+            // Variable global para almacenar todos los puestos con sus tarifas. 
+            let puestosConTarifas = [];
+            let inputCedula;
+            let selectPuesto;
+            let selectBonificacion;
+            let btnAsignarBonificacion;
+
+            // --- FUNCIÓN AUXILIAR DE PINTADO DE TARIFAS ---
+            function mostrar_tarifasPuesto(tarifas) {
+                const contenedorTabla = document.getElementById('tabla-tarifas');
+
+                if (!tarifas || tarifas.length === 0) {
+                    contenedorTabla.innerHTML = '<p class="tarifas-info">No se encontraron tarifas para este puesto.</p>';
+                    return;
+                }
+
+                // Se asume que 'crearTablaDesdeJson' existe en utilesVista.js
+                const htmlTabla = crearTablaDesdeJson(tarifas);
+
+                contenedorTabla.innerHTML = `
+            <span class="tarifas-title">Tarifas del puesto</span>
+            <div class="tarifas-muestra">
+                ${htmlTabla}
+                <p class="tarifas-info">Se muestran categoría y monto actuales del puesto seleccionado.</p>
+            </div>
+        `;
+            }
+
+            // --- FUNCIONES ESPECÍFICAS DE CARGA (Para llenar los selects) ---
+
+            function mostrar_puestos(puestos) {
+                puestosConTarifas = puestos;
+                const selectPuestoEmular = document.getElementById('puesto');
+                const selectPuestoAsignacion = document.getElementById('puestos-select');
+
+                // 1. Limpiar opciones previas
+                const defaultOption = '<option value="" disabled selected>Seleccione un puesto</option>';
+                selectPuestoEmular.innerHTML = defaultOption;
+                selectPuestoAsignacion.innerHTML = defaultOption;
+
+                // 2. Llenar AMBOS selects con los puestos
+                puestosConTarifas.forEach(puesto => {
+
+                    // El 'nombre' es el identificador único (ej: "Accesos-101") que usa el backend.
+                    const claveUnica = puesto.direccion;
+
+                    // El texto visible puede ser el 'nombre' o la 'direccion' descriptiva.
+                    const textoVisible = puesto.nombre + ' (' + puesto.direccion + ')';
+
+                    if (claveUnica) {
+                        const option = document.createElement('option');
+
+                        // ✅ CORRECCIÓN CLAVE: El valor enviado al backend
+                        option.value = claveUnica;
+                        option.textContent = textoVisible;
+
+                        console.log(`✅ Agregando puesto al select (Valor: ${option.value} | Texto: ${option.textContent})`);
+
+                        // Llenar ambos selects
+                        selectPuestoEmular.appendChild(option.cloneNode(true));
+                        selectPuestoAsignacion.appendChild(option);
+                    }
+                });
+
+                // 3. Inicializar el primer puesto y mostrar tarifas
+                if (puestosConTarifas.length > 0) {
+                    const primerPuesto = puestosConTarifas[0];
+
+                    // Usamos la clave única para setear el valor inicial
+                    selectPuestoEmular.value = primerPuesto.nombre;
+
+                    mostrar_tarifasPuesto(primerPuesto.tarifas);
+                }
+            }
+
+            function mostrar_propietario(data) {
+                if (!data) {
+                    mostrar_error("Error: Propietario no encontrado o datos incompletos.");
+                    return;
+                }
+
+                // A. Actualizar la información del propietario
+                document.getElementById('prop-asignacion-nombre').textContent = data.nombre;
+                document.getElementById('prop-asignacion-estado').textContent = data.estado;
+
+                // --- B. CARGAR TABLA DE BONIFICACIONES ASIGNADAS CON crearTablaDesdeJson ---
+
+                // 1. Obtener el contenedor de la tabla (usando la estructura de tu HTML)
+                const contenedorTabla = document.querySelector('.bonificaciones-asignadas .table-container');
+
+                // 2. Determinar la fuente de datos (asumiendo que es 'bonificacionesAsignadas' o 'bonificaciones')
+                const bonificaciones = data.bonificacionesAsignadas || data.bonificaciones;
+
+                // 3. Generar el HTML de la tabla
+                const htmlTabla = crearTablaDesdeJson(bonificaciones);
+
+                // 4. Inyectar el HTML en el contenedor
+                contenedorTabla.innerHTML = htmlTabla;
+
+                // 5. Agregar el título (si tu HTML lo tenía por separado, asegúrate de mantenerlo)
+                const h4Title = document.createElement('h4');
+                h4Title.textContent = 'Bonificaciones asignadas';
+                contenedorTabla.prepend(h4Title);
+
+                // Opcional: Mostrar un mensaje de éxito
+                mostrar_mensajeExito(`Propietario ${data.nombre} encontrado correctamente.`);
+            }
+
+            // --- FUNCIÓN LLAMADA AUTOMÁTICAMENTE POR EL SISTEMA ---
+            /**
+             * Se llama automáticamente al recibir la clave "bonificaciones".
+             * @param {Array<String>} bonificaciones - Lista de nombres de bonificaciones (strings).
+             */
+            function mostrar_bonificaciones(bonificaciones) {
+                const selectBonificaciones = document.getElementById('bonificaciones-select');
+
+                console.log("Bonificaciones recibidas (ARRAY DE STRINGS):", bonificaciones);
+
+                // 1. Limpiar select
+                selectBonificaciones.innerHTML = '<option value="" disabled selected>Seleccione una bonificación</option>';
+
+                // 2. Llenar el select con los nombres de las bonificaciones
+                bonificaciones.forEach(nombre => {
+
+                    // La variable 'nombre' ya contiene el string de la bonificación
+                    // Verificación clave: Asegurarse de que el string exista y no sea 'Null' o vacío
+                    if (nombre && typeof nombre === 'string' && nombre.trim().length > 0) {
+
+                        console.log("Agregando bonificación al select:", nombre);
+                        const option = document.createElement('option');
+
+                        // Usamos la variable 'nombre' directamente para el valor y el texto
+                        option.value = nombre;
+                        option.textContent = nombre;
+
+                        selectBonificaciones.appendChild(option);
+                    } else {
+                        console.log("Bonificación ignorada ('Null' o vacía):", nombre);
+                    }
+                });
+            }
+
+            document.addEventListener("DOMContentLoaded", function () {
+                // Asegúrate de iniciar la vista al cargar la página si aún no lo haces
+                // La función 'submit' debe ser llamada aquí o al inicio de la página
+                // para traer los datos. (ejemplo: submit(urlIniciarVista); )
+
+
+
+                const btnBuscarPropietario = document.getElementById('btn-buscar-propietario');
+                inputCedula = document.getElementById('cedula-input');
+
+                // C) MANEJO DEL BOTÓN DE BUSCAR PROPIETARIO
+                btnBuscarPropietario.addEventListener('click', function () {
+                    const cedula = inputCedula.value;
+
+                    if (!cedula || cedula.trim() === '') {
+                        mostrarMensaje("Debe ingresar un número de cédula.", 'warning');
+                        return;
+                    }
+
+                    // Asumiendo que tu sistema usa 'submit' para llamadas POST
+                    const parametros = `cedula=${encodeURIComponent(cedula)}`;
+                    submit('/usuario/obtenerUsuario', parametros, 'POST');
+                });
+
+                selectPuesto = document.getElementById('puestos-select');
+                const btnEmular = document.getElementById('btn-emular-transito');
+
+                // A) MANEJO DEL CAMBIO DE PUESTO (ACTUALIZAR TARIFAS)
+                selectPuesto.addEventListener('change', function () {
+                    const puestoDireccion = this.value;
+                    const puestoSeleccionado = puestosConTarifas.find(p => p.direccion === puestoDireccion);
+
+                    if (puestoSeleccionado && puestoSeleccionado.tarifas) {
+                        mostrar_tarifasPuesto(puestoSeleccionado.tarifas);
+                    } else {
+                        document.getElementById('tabla-tarifas').innerHTML = '<p class="tarifas-info">No se encontraron tarifas.</p>';
+                    }
+                });
+
+                btnAsignarBonificacion = document.getElementById('btn-asignar-bonificacion');
+                selectBonificacion = document.getElementById('bonificaciones-select'); // Select de bonificaciones definidas
+
+                btnAsignarBonificacion.addEventListener('click', function () {
+                    // 1. Obtener valores
+                    const cedula = inputCedula.value;
+                    const puestoDireccion = selectPuesto.value;
+                    const bonificacionNombre = selectBonificacion.value;
+
+                    // 2. Validaciones
+                    if (!cedula || cedula.trim() === '') {
+                        mostrarMensaje("Debe buscar un propietario e ingresar su cédula.", 'warning');
+                        return;
+                    }
+                    if (!puestoDireccion) {
+                        mostrarMensaje("Debe seleccionar un puesto para la asignación.", 'warning');
+                        return;
+                    }
+                    if (!bonificacionNombre) {
+                        mostrarMensaje("Debe seleccionar una bonificación.", 'warning');
+                        return;
+                    }
+
+                    // 3. Preparar parámetros
+                    const parametros =
+                        `puestoDireccion=${encodeURIComponent(puestoDireccion)}` +
+                        `&bonificacionNombre=${encodeURIComponent(bonificacionNombre)}` +
+                        `&cedula=${encodeURIComponent(cedula)}`;
+
+                    // console.log("Asignando bonificación con parámetros:", parametros);
+
+                    const url = '/usuario/asignarBonificacion';
+
+                    // 4. Llamar al backend usando la función 'submit'
+                    // El resultado de esta llamada lo procesará la función de callback 'mostrar_exito' o 'mostrar_error'.
+                    submit(url, parametros, 'POST');
+                });
+
+                // B) MANEJO DEL BOTÓN DE EMULACIÓN (SUBMIT)
+                btnEmular.addEventListener('click', function () {
+                    const puestoDireccion = selectPuesto.value;
+                    const matricula = document.getElementById('matricula').value;
+                    const fechaHora = document.getElementById('fechaHora').value;
+
+                    if (!puestoDireccion || !matricula || !fechaHora) {
+                        mostrarMensaje("Debe seleccionar un puesto e ingresar matrícula y fecha/hora.");
+                        return;
+                    }
+
+                    const parametros =
+                        `puestoDireccion=${encodeURIComponent(puestoDireccion)}` +
+                        `&matricula=${encodeURIComponent(matricula)}` +
+                        `&fechaHora=${encodeURIComponent(fechaHora)}`;
+
+                    submit('/transito/emular', parametros, 'POST');
+                });
+            });
+
+            function mostrar_exito(mensaje) {
+                // El mensaje 'mensaje' vendrá como 'null' en este caso, por lo que usamos uno predeterminado
+                const mensajeFinal = mensaje || "Bonificación asignada con éxito.";
+
+                // 1. Mostrar mensaje de éxito
+                mostrarMensaje(mensajeFinal, 'success');
+
+                // 2. Re-consultar los datos del propietario para actualizar la tabla de bonificaciones asignadas
+                // Esto asegura que la tabla refleje el cambio inmediatamente.
+                const cedula = inputCedula.value;
+                const parametros = `cedula=${encodeURIComponent(cedula)}`;
+                submit('/usuario/obtenerUsuario', parametros, 'POST');
+            }
+
+            // --- FUNCIONES DE RESULTADO DE EMULACIÓN (Mantenidas) ---
+            function mostrar_resultadoEmulacion(data) {
+                document.getElementById('prop-nombre').textContent = data.propietarioNombre;
+                document.getElementById('prop-estado').textContent = data.propietarioEstado;
+                document.getElementById('transito-categoria').textContent = data.categoria;
+                document.getElementById('transito-bonificacion').textContent = data.bonificacionNombre || 'Ninguna';
+
+                document.getElementById('transito-costo').textContent = `$ ${data.costoTransito.toFixed(2)}`;
+                document.getElementById('saldo-luego').textContent = `$ ${data.saldoLuego.toFixed(2)}`;
+            }
+
+            function mostrar_error(mensaje) {
+                mostrarMensaje(`Error en la operación: ${mensaje}`, 'error');
+            }
+
+            function mostrar_mensajeExito(mensaje) {
+                mostrarMensaje(mensaje, 'success');
+            }
+
+        </script>
+</body>
+
+</html>

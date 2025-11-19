@@ -5,6 +5,7 @@ import java.util.Collection;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 @Data
 @NoArgsConstructor
@@ -17,6 +18,7 @@ public class Puesto {
 
 	private Collection<Tarifa> tarifas;
 
+	@ToString.Exclude
 	private Collection<PropietarioBonificacion> propietarioBonificacion;
 
 	public Puesto(String nombre, String direccion, Collection<Tarifa> tarifas) {

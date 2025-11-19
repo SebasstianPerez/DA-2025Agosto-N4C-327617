@@ -2,9 +2,18 @@ package edu.ort.da.obligatorio.Modelo;
 
 import java.time.LocalDateTime;
 
-public class EstrategiaExonerados implements EstrategiaBonificacion {
+public class EstrategiaExonerados extends EstrategiaBonificacion {
+    public EstrategiaExonerados() {
+        super("Exonerado");
+    }
+
     @Override
-    public double calcularDescuento(LocalDateTime fechaTransito, double montoBase , Long transitosPreviosHoy) {
+    public double calcularDescuento(LocalDateTime fechaTransito, double montoBase, Long transitosPreviosHoy) {
         return 0.0;
+    }
+
+    @Override
+    public String obtenerBonificacionNombre() {
+        throw new UnsupportedOperationException("Unimplemented method 'obtenerBonificacionNombre'");
     }
 }
