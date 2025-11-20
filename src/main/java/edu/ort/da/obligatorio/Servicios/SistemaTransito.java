@@ -91,16 +91,22 @@ public class SistemaTransito {
 				.filter(t -> t.getVehiculo().equals(vehiculo))
 				.count();
 
-		System.out.println("Transitos realizados: "+cantidadTransitos);
+		System.out.println("Transitos realizados: " + cantidadTransitos);
 
 		return cantidadTransitos;
 	}
 
-	public Transito emularTransito(String puestoDireccion, Vehiculo vehiculo, Propietario propietario,
+	public Transito emularTransito(String puestoDireccion, Vehiculo vehiculo,
 			LocalDateTime fechaHora) throws PeajeException {
 
+		if (vehiculo == null) {
+			throw new PeajeException("No existe el vehiculo");
+		}
+
+		Propietario propietario = vehiculo.getPropietario();
+
 		if (!propietario.getEstado().puedeRealizarTransitos()) {
-			throw new PeajeException("El propietario se encuentra bloqueado y no puede realizar transitos.");
+			throw new PeajeException("El propietario del vehículo está bloqueado, no puede realizar tránsitos.");
 		}
 
 		Puesto puesto = getPuestoByDireccion(puestoDireccion);

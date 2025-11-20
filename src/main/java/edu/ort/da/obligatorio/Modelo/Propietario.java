@@ -97,7 +97,7 @@ public class Propietario extends Usuario implements Observable {
 
     public boolean cobrarTransito(double monto) throws PeajeException {
         if (monto > this.saldo) {
-            throw new PeajeException("Saldo insuficiente para peaje. Monto requerido: " + monto);
+            throw new PeajeException("Saldo insuficiente. Monto requerido: " + monto);
         }
 
         this.setSaldo(saldo - monto);

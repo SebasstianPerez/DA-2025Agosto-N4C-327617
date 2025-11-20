@@ -154,7 +154,7 @@ class SistemaUsuarios {
         }
     }
 
-    public Collection<Notificacion> getNotifiaciones(String cedula) {
+    public Collection<Notificacion> getNotifiaciones(String cedula) throws PeajeException {
         return getPropietarioByCedula(cedula).getNotificaciones().stream()
                 .sorted(Comparator.comparing(Notificacion::getFecha).reversed())
                 .collect(Collectors.toList());
@@ -174,13 +174,6 @@ class SistemaUsuarios {
     Administrador getAdministrador(String cedula) {
         return administradores.stream()
                 .filter(a -> a.getCedula().equals(cedula))
-                .findFirst()
-                .orElse(null);
-    }
-
-    Propietario getPropietario(String cedula) {
-        return propietarios.stream()
-                .filter(p -> p.getCedula().equals(cedula))
                 .findFirst()
                 .orElse(null);
     }
@@ -216,11 +209,17 @@ class SistemaUsuarios {
                 .orElseThrow(() -> new PeajeException("Estado no encontrado: " + nombreEstado));
     }
 
-    public Propietario getPropietarioByCedula(String cedula) {
-        return propietarios.stream()
+    public Propietario getPropietarioByCedula(String cedula) throws PeajeException {
+        Propietario propietario = propietarios.stream()
                 .filter(p -> p.getCedula().equals(cedula))
                 .findFirst()
                 .orElse(null);
+
+        if(propietario == null){
+            throw new PeajeException("no existe el propietario");
+        }
+
+        return propietario;
     }
 
     public void cambiarEstado(String cedula, String nombreEstadoDestino) throws PeajeException {
@@ -239,15 +238,37 @@ class SistemaUsuarios {
 
     public void asignarBonificacion(String cedula, Puesto puesto, String bonificacionNombre) throws PeajeException {
         Bonificacion bonificacion = getBonificacionByNombre(bonificacionNombre);
-        Propietario propietario = getPropietario(cedula);
+        Propietario propietario = getPropietarioByCedula(cedula);
 
-        if (propietario == null || puesto == null || bonificacion == null) {
-            throw new PeajeException("Datos de asignación incompletos o inválidos.");
+        if(!propietario.getEstado().puedeRecibirBonificaciones()){
+            throw new PeajeException("No puede recibir bonificaciones.");
+        }
+
+        if(propietario == null){
+            throw new PeajeException("No existe el propietario");
+        }
+
+        if (bonificacion == null) {
+            throw new PeajeException("Debe especificar una bonificación.");
+        }
+
+        if(puesto == null){
+            throw new PeajeException("Debe especificar un puesto");
         }
 
         Collection<PropietarioBonificacion> asignacionesActuales = propietario.getBonificaciones();
 
-        asignacionesActuales.removeIf(ba -> ba.getPuesto().getDireccion().equals(puesto.getDireccion()));
+        PropietarioBonificacion bonificacionExistente = asignacionesActuales.stream().filter(
+                a -> a.getPuesto().getDireccion()
+                .equals(puesto.getDireccion()))
+                .findFirst()
+            .orElse(null);
+
+        if(bonificacionExistente != null){
+            throw new PeajeException("Ya tiene una bonificacion asignada para ese puesto");
+        }
+        
+        // asignacionesActuales.removeIf(ba -> ba.getPuesto().getDireccion().equals(puesto.getDireccion()));
 
         PropietarioBonificacion nuevaAsignacion = new PropietarioBonificacion(propietario, puesto, bonificacion);
 
