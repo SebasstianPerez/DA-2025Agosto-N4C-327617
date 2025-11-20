@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Emular Tránsito - Administrador</title>
+    <link rel="stylesheet" href="style/emularTransito.css">
+
+    <script src="vistaWeb.js"></script>
+</head>
+
+<body>
+    <script src="utilesVista.js"></script>
+
+    <div class="emulacion-container">
+
+        <div class="main-container">
+            <header class="emulacion-header">
+                <h2>🚦 Emular tránsito</h2>
+                <p>Seleccione un puesto, verifique sus tarifas, ingrese una matrícula y emule un tránsito.</p>
+
+                <div class="dashboard-header">
+                    <h1>Tablero de control del propietario</h1>
+                    <a href="#" class="salir-link">Salir</a>
+                </div>
+            </header>
+
+            <div class="emulacion-card card">
+                <div class="form-grid">
+                    <div class="form-input-column">
+                        <label for="puesto">Puesto</label>
+                        <select id="puesto" name="puesto" class="input-field">
+                            <option value="" disabled selected>Seleccione un puesto</option>
+                        </select>
+
+                        <label for="matricula">Matrícula</label>
+                        <input type="text" id="matricula" name="matricula" placeholder="EJ: ABC1234"
+                            class="input-field">
+
+                        <label for="fechaHora">Fecha y hora del tránsito</label>
+                        <input type="datetime-local" id="fechaHora" name="fechaHora" placeholder="EJ: 2025-11-19 15:30"
+                            class="input-field">
+                    </div>
+
+                    <div class="tarifas-column">
+                        <span class="tarifas-title">Tarifas del puesto</span>
+                        <div id="tabla-tarifas" class="table-content">
+                            <div class="tarifas-muestra">
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th>Categoría</th>
+                                            <th>Monto</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>A (Auto)</td>
+                                            <td>$ 120.00</td>
+                                        </tr>
+                                        <tr>
+                                            <td>B (Camioneta)</td>
+                                            <td>$ 180.00</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <p class="tarifas-info">Se muestran categoría y monto actuales del puesto seleccionado.</p>
+                    </div>
+                </div>
+
+                <button id="btn-emular-transito" class="btn-primary">Emular tránsito</button>
+
+                <div class="resultado-seccion" id="resultado-transito">
+                    <h3 class="resultado-title">Resultado</h3>
+                    <p><strong>Propietario:</strong> <span id="prop-nombre">Juan Pérez</span></span></p>
+                    <p><strong>Categoría:</strong> <span id="transito-categoria">A (Auto)</span></p>
+                    <p><strong>Bonificación:</strong> <span id="transito-bonificacion">Residente Costa de Oro
+                            (10%)</span></p>
+                    <p><strong>Costo del tránsito:</strong> <span id="transito-costo">$ 120.00</span></p>
+                </div>
+            </div>
+
+            <div class="asignacion-card card">
+                <header class="card-header">
+                    <h3>Asignar bonificaciones</h3>
+                </header>
+
+                <div class="form-grid-2-col">
+                    <div class="col-left">
+                        <label for="bonificaciones-select">Bonificaciones definidas</label>
+                        <select id="bonificaciones-select" class="input-field">
+                            <option>Residente Costa de Oro</option>
+                        </select>
+
+                        <label for="puestos-select">Puestos definidos</label>
+                        <select id="puestos-select" class="input-field">
+                            <option>Puesto 204 - Ruta Interbalnearia</option>
+                        </select>
+                    </div>
+
+                    <div class="col-right">
+                        <label for="cedula-input">Cédula de identidad</label>
+                        <div class="busqueda-propietario">
+                            <input type="text" id="cedula-input" placeholder="12345678" class="input-field">
+                            <button id="btn-buscar-propietario" class="btn-primary">Buscar propietario</button>
+                        </div>
+
+                        <div class="propietario-resumen">
+                            <strong>Propietario</strong>
+                            <p>Nombre: <span id="prop-asignacion-nombre">Propietario Demo 12345678</span></p>
+                            <p>Estado: <span id="prop-asignacion-estado">Activo</span></p>
+                        </div>
+
+                        <div class="bonificaciones-asignadas">
+                            <h4>Bonificaciones asignadas</h4>
+                            <div class="table-container">
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th>Bonificación</th>
+                                            <th>Puesto</th>
+                                            <th>Fecha asignación</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td colspan="3">Sin bonificaciones asignadas</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <div class="asignar-nueva">
+                            <h4>Asignar nueva bonificación</h4>
+                            <p>Seleccione bonificación y puesto en las listas de la izquierda y luego asigne.</p>
+                            <button id="btn-asignar-bonificacion" class="btn-primary">Asignar bonificación</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <section class="admin-card estado-propietario-section">
+                <div class="card-header">
+                    <h3 class="card-title">Cambiar estado de propietario</h3>
+                </div>
+
+                <div class="card-body">
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <label for="select-nuevo-estado">Estados definidos</label>
+                            <select id="select-nuevo-estado" class="input-field">
+                                <option value="" disabled selected>Seleccione nuevo estado</option>
+                                <option value="Activo">Activo</option>
+                                <option value="Deshabilitado">Deshabilitado</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label style="opacity:0;">Placeholder</label>
+                            <button id="btn-cambiar-estado" class="btn-primary" disabled>Cambiar estado</button>
+                        </div>
+                    </div>
+
+                    <hr>
+
+                    <div id="info-propietario-estado" class="propietario-info-box">
+                        <h4>Propietario</h4>
+                        <div class="info-line">
+                            <span class="info-label">Nombre:</span>
+                            <span id="prop-estado-nombre">...</span>
+                        </div>
+                        <div class="info-line">
+                            <span class="info-label">Estado actual:</span>
+                            <span id="prop-estado-actual">...</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <footer class="footer-admin">
+            © 2025 - Administración
+        </footer>
+        <script>
+            urlIniciarVista = '/transito/inicializarVista'; // Endpoint para cargar puestos y tarifas iniciales
+
+            let puestosConTarifas = [];
+            let inputCedula;
+            let selectPuesto;
+            let selectBonificacion;
+            let selectNuevoEstado;
+            let btnCambiarEstado;
+            let selectPuestoEmular;
+
+            function mostrar_tarifasPuesto(tarifas) {
+                const contenedorTabla = document.getElementById('tabla-tarifas');
+
+                if (!tarifas || tarifas.length === 0) {
+                    contenedorTabla.innerHTML = '<p class="tarifas-info">No se encontraron tarifas para este puesto.</p>';
+                    return;
+                }
+
+                const htmlTabla = crearTablaDesdeJson(tarifas);
+
+                contenedorTabla.innerHTML = `
+            <span class="tarifas-title">Tarifas del puesto</span>
+            <div class="tarifas-muestra">
+                ${htmlTabla}
+                <p class="tarifas-info">Se muestran categoría y monto actuales del puesto seleccionado.</p>
+            </div>
+        `;
+            }
+
+            function mostrar_puestos(puestos) {
+                puestosConTarifas = puestos;
+                selectPuestoEmular = document.getElementById('puesto');
+                const selectPuestoAsignacion = document.getElementById('puestos-select');
+
+                const defaultOption = '<option value="" disabled selected>Seleccione un puesto</option>';
+                selectPuestoEmular.innerHTML = defaultOption;
+                selectPuestoAsignacion.innerHTML = defaultOption;
+
+                puestosConTarifas.forEach(puesto => {
+
+                    const claveUnica = puesto.direccion;
+                    const textoVisible = puesto.nombre + ' (' + puesto.direccion + ')';
+
+                    if (claveUnica) {
+                        const option = document.createElement('option');
+
+                        option.value = claveUnica;
+                        option.textContent = textoVisible;
+
+                        console.log(`✅ Agregando puesto al select (Valor: ${option.value} | Texto: ${option.textContent})`);
+
+                        selectPuestoEmular.appendChild(option.cloneNode(true));
+                        selectPuestoAsignacion.appendChild(option);
+                    }
+                });
+
+                if (puestosConTarifas.length > 0) {
+                    const primerPuesto = puestosConTarifas[0];
+
+                    selectPuestoEmular.value = primerPuesto.direccion;
+
+                    mostrar_tarifasPuesto(primerPuesto.tarifas);
+                }
+            }
+
+            function mostrar_propietario(data) {
+                if (!data) {
+                    mostrar_error("Error: Propietario no encontrado o datos incompletos.");
+                    return;
+                }
+
+                document.getElementById('prop-asignacion-nombre').textContent = data.nombre;
+                document.getElementById('prop-asignacion-estado').textContent = data.estado;
+
+
+                const contenedorTabla = document.querySelector('.bonificaciones-asignadas .table-container');
+
+                const bonificaciones = data.bonificacionesAsignadas || data.bonificaciones;
+
+                const htmlTabla = crearTablaDesdeJson(bonificaciones);
+
+                contenedorTabla.innerHTML = htmlTabla;
+
+                const h4Title = document.createElement('h4');
+                h4Title.textContent = 'Bonificaciones asignadas';
+                contenedorTabla.prepend(h4Title);
+
+                actualizar_todos_los_modulos(data);
+                mostrar_mensajeExito(`Propietario ${data.nombreCompleto} encontrado correctamente.`);
+            }
+
+            function mostrar_estados(estados) {
+                const selectEstados = document.getElementById('select-nuevo-estado');
+
+                selectEstados.innerHTML = '<option value="" disabled selected>Seleccione nuevo estado</option>';
+
+                if (!estados || estados.length === 0) {
+                    console.warn("No se recibieron estados del propietario desde el backend.");
+                    mostrarMensaje("No se pudieron cargar los estados disponibles.", 'error');
+                    return;
+                }
+
+                estados.forEach(estado => {
+                    if (estado && typeof estado === 'string' && estado.trim().length > 0) {
+                        const option = document.createElement('option');
+                        option.value = estado;
+                        option.textContent = estado;
+                        selectEstados.appendChild(option);
+                    }
+                });
+
+                console.log(`✅ ${estados.length} estados cargados correctamente en el select.`);
+            }
+
+            function mostrar_estado_propietario(data) {
+                const propNombre = document.getElementById('prop-estado-nombre');
+                const propEstado = document.getElementById('prop-estado-actual');
+
+                if (!data || data.length === 0) {
+                    mostrarMensaje('Propietario no encontrado o datos incompletos.', 'error');
+                    propNombre.textContent = '...';
+                    propEstado.textContent = '...';
+                    btnCambiarEstado.disabled = true;
+                    return;
+                }
+
+                const propietario = Array.isArray(data) ? data[0] : data;
+
+                if (!propietario.nombreCompleto || !propietario.estado) {
+                    mostrarMensaje('Datos del propietario incompletos.', 'error');
+                    btnCambiarEstado.disabled = true;
+                    return;
+                }
+
+                propNombre.textContent = propietario.nombreCompleto;
+                propEstado.textContent = propietario.estado;
+
+                selectNuevoEstado.value = propietario.estado;
+
+                btnCambiarEstado.disabled = false;
+
+                mostrarMensaje(`Propietario ${propietario.nombreCompleto} cargado. Estado actual: ${propietario.estado}`, 'success');
+            }
+
+            function mostrar_bonificaciones(bonificaciones) {
+                const selectBonificaciones = document.getElementById('bonificaciones-select');
+
+                selectBonificaciones.innerHTML = '<option value="" disabled selected>Seleccione una bonificación</option>';
+
+                bonificaciones.forEach(nombre => {
+                    const option = document.createElement('option');
+
+                    option.value = nombre;
+                    option.textContent = nombre;
+
+                    selectBonificaciones.appendChild(option);
+
+                });
+            }
+
+            document.addEventListener("DOMContentLoaded", function () {
+                inputCedulaEstado = document.getElementById('input-cedula-estado');
+                selectNuevoEstado = document.getElementById('select-nuevo-estado');
+                btnCambiarEstado = document.getElementById('btn-cambiar-estado');
+
+                submit('/usuario/getStates', null, 'GET');
+
+                btnCambiarEstado.disabled = true;
+
+                btnCambiarEstado.addEventListener('click', function () {
+                    const cedula = inputCedula.value;
+                    const nombreEstado = selectNuevoEstado.value;
+
+                    if (!nombreEstado) {
+                        mostrarMensaje('Seleccione el nuevo estado.', 'warning');
+                        return;
+                    }
+
+                    const url = '/usuario/changeState';
+                    const parametros = `cedula=${encodeURIComponent(cedula)}&nombreEstado=${encodeURIComponent(nombreEstado)}`;
+
+                    submit(url, parametros, 'POST', mostrar_estado_propietario);
+                });
+
+
+
+                const btnBuscarPropietario = document.getElementById('btn-buscar-propietario');
+                inputCedula = document.getElementById('cedula-input');
+
+                btnBuscarPropietario.addEventListener('click', function () {
+                    const cedula = inputCedula.value;
+
+                    if (!cedula || cedula.trim() === '') {
+                        mostrarMensaje("Debe ingresar un número de cédula.", 'warning');
+                        return;
+                    }
+
+                    const parametros = `cedula=${encodeURIComponent(cedula)}`;
+                    submit('/usuario/obtenerUsuario', parametros, 'POST');
+                });
+
+                selectPuesto = document.getElementById('puestos-select');
+                const btnEmular = document.getElementById('btn-emular-transito');
+
+                selectPuesto.addEventListener('change', function () {
+                    const puestoDireccion = this.value;
+                    const puestoSeleccionado = puestosConTarifas.find(p => p.direccion === puestoDireccion);
+
+                    if (puestoSeleccionado && puestoSeleccionado.tarifas) {
+                        mostrar_tarifasPuesto(puestoSeleccionado.tarifas);
+                    } else {
+                        document.getElementById('tabla-tarifas').innerHTML = '<p class="tarifas-info">No se encontraron tarifas.</p>';
+                    }
+                });
+
+                btnAsignarBonificacion = document.getElementById('btn-asignar-bonificacion');
+                selectBonificacion = document.getElementById('bonificaciones-select');
+
+                btnAsignarBonificacion.addEventListener('click', function () {
+                    const cedula = inputCedula.value;
+                    const puestoDireccion = selectPuesto.value;
+                    const bonificacionNombre = selectBonificacion.value;
+
+                    if (!cedula || cedula.trim() === '') {
+                        mostrarMensaje("Debe buscar un propietario e ingresar su cédula.", 'warning');
+                        return;
+                    }
+                    if (!puestoDireccion) {
+                        mostrarMensaje("Debe seleccionar un puesto para la asignación.", 'warning');
+                        return;
+                    }
+                    if (!bonificacionNombre) {
+                        mostrarMensaje("Debe seleccionar una bonificación.", 'warning');
+                        return;
+                    }
+
+                    const parametros =
+                        `puestoDireccion=${encodeURIComponent(puestoDireccion)}` +
+                        `&bonificacionNombre=${encodeURIComponent(bonificacionNombre)}` +
+                        `&cedula=${encodeURIComponent(cedula)}`;
+
+                    const url = '/usuario/asignarBonificacion';
+
+                    submit(url, parametros, 'POST');
+                });
+
+                btnEmular.addEventListener('click', function () {
+                    const puestoDireccion = selectPuestoEmular.value;
+                    const matricula = document.getElementById('matricula').value;
+                    const fechaHora = document.getElementById('fechaHora').value;
+
+                    if (!puestoDireccion || !matricula || !fechaHora) {
+                        mostrarMensaje("Debe seleccionar un puesto e ingresar matrícula y fecha/hora.");
+                        return;
+                    }
+
+                    const parametros =
+                        `puestoDireccion=${encodeURIComponent(puestoDireccion)}` +
+                        `&matricula=${encodeURIComponent(matricula)}` +
+                        `&fechaHora=${encodeURIComponent(fechaHora)}`;
+
+                    submit('/transito/emular', parametros, 'POST');
+                });
+            });
+
+            function actualizar_todos_los_modulos(data) {
+                if (!data || data.length === 0 || data.error) {
+                    mostrar_error("Propietario no encontrado o error en la búsqueda.");
+                    actualizar_modulo_asignacion({});
+                    actualizar_modulo_estado({});
+                    return;
+                }
+
+                actualizar_modulo_asignacion(data);
+                actualizar_modulo_estado(data);
+            }
+
+            function actualizar_modulo_asignacion(data) {
+                const propietario = Array.isArray(data) ? data[0] : data;
+
+                if (!propietario || !propietario.nombreCompleto || !propietario.estado) {
+                    document.getElementById('prop-asignacion-nombre').textContent = '...';
+                    document.getElementById('prop-asignacion-estado').textContent = '...';
+                    return;
+                }
+
+                document.getElementById('prop-asignacion-nombre').textContent = propietario.nombreCompleto;
+                document.getElementById('prop-asignacion-estado').textContent = propietario.estado;
+
+                mostrar_mensajeExito(`Propietario ${propietario.nombreCompleto} cargado en Asignación.`);
+            }
+
+            function actualizar_modulo_estado(data) {
+                const propietario = Array.isArray(data) ? data[0] : data;
+                const propNombre = document.getElementById('prop-estado-nombre');
+                const propEstado = document.getElementById('prop-estado-actual');
+
+                if (!propietario || !propietario.nombreCompleto || !propietario.estado) {
+                    propNombre.textContent = '...';
+                    propEstado.textContent = '...';
+                    btnCambiarEstado.disabled = true;
+                    return;
+                }
+
+                propNombre.textContent = propietario.nombreCompleto;
+                propEstado.textContent = propietario.estado;
+                selectNuevoEstado.value = propietario.estado;
+                btnCambiarEstado.disabled = false;
+            }
+
+            function mostrar_exito(mensaje) {
+                const mensajeFinal = mensaje || "Bonificación asignada con éxito.";
+
+                mostrarMensaje(mensajeFinal, 'success');
+
+                const cedula = inputCedula.value;
+                const parametros = `cedula=${encodeURIComponent(cedula)}`;
+                submit('/usuario/obtenerUsuario', parametros, 'POST');
+            }
+
+            function mostrar_resultadoEmulacion(data) {
+                document.getElementById('prop-nombre').textContent = data.nombrePropietario;
+                document.getElementById('prop-estado-nombre').textContent = data.propietarioNombre;
+                document.getElementById('transito-categoria').textContent = data.categoria;
+                document.getElementById('transito-bonificacion').textContent = data.bonificacion || 'Ninguna';
+
+                document.getElementById('transito-costo').textContent = `$ ${data.montoPagado.toFixed(2)}`;
+            }
+
+            function mostrar_error(mensaje) {
+                mostrarMensaje(`Error en la operación: ${mensaje}`, 'error');
+            }
+
+            function mostrar_mensajeExito(mensaje) {
+                mostrarMensaje(mensaje, 'success');
+            }
+
+            document.addEventListener('DOMContentLoaded', function () {
+                const salirLink = document.querySelector('.salir-link');
+                if (salirLink) {
+                    salirLink.addEventListener('click', function (e) {
+                        e.preventDefault();
+                        submit('/auth/admin/logout', '');
+                    });
+                }
+            });
+
+            function mostrar_usuarioNoAutenticado(url) {
+                window.location.href = url;
+            }
+
+        </script>
+</body>
+
+</html>

@@ -1,12 +1,19 @@
 package edu.ort.da.obligatorio.Modelo;
 
+import lombok.Data;
+
+@Data
 public class Vehiculo {
+
+	private Long id;
 
 	private String matricula;
 
 	private CategoriaVehiculo categoria;
 
 	private String color;
+
+	private String modelo;
 
 	private double montoTotal;
 
@@ -18,56 +25,22 @@ public class Vehiculo {
 
 	}
 
-	/**
-	 *  
-	 */
-	public void setMatricula(String matricula) {
-
+	public Vehiculo(String matricula, CategoriaVehiculo categoria, String color, String modelo,
+			Propietario propietario) {
+		this.matricula = matricula;
+		this.categoria = categoria;
+		this.color = color;
+		this.modelo = modelo;
+		this.propietario = propietario;
+		this.montoTotal = 0.0;
+		this.cantidadTransitos = 0;
 	}
 
-	/**
-	 *  
-	 */
-	public void setCategoria(CategoriaVehiculo categoria) {
-
+	public void agregarUnTransito(double monto) {
+		this.montoTotal += monto;
+		this.cantidadTransitos += 1;
 	}
 
-	/**
-	 *  
-	 */
-	public void setColor(String color) {
-
-	}
-
-	/**
-	 *  
-	 */
-	public void addMontoTotal(double monto) {
-
-	}
-
-	public void addCantidadTransitos() {
-
-	}
-
-	public String getMatricula() {
-		return null;
-	}
-
-	public CategoriaVehiculo getCategoria() {
-		return null;
-	}
-
-	public String getColor() {
-		return null;
-	}
-
-	public double getMontoTotal() {
-		return 0;
-	}
-
-	public int getCantidadTransitos() {
-		return 0;
-	}
+	
 
 }

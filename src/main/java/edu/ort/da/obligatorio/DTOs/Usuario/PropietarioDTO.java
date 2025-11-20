@@ -1,5 +1,7 @@
 package edu.ort.da.obligatorio.DTOs.Usuario;
 
+import java.util.Collection;
+
 import lombok.Data;
 
 @Data
@@ -9,18 +11,10 @@ public class PropietarioDTO {
 
 	private String contrasena;
 
-	private String nombre;
+	private String nombreCompleto;
 
-	private String apellido;
+	private String estado;
 
-	private int estado;
-
-	public PropietarioDTO(String cedulaDeIdentidad, String contrasena, String nombre, String apellido, int estado) {
-
-	}
-
-	public PropietarioDTO() {
-
-	}
+	private Collection<BonificacionAsignadaDTO> bonificaciones;
 
 }

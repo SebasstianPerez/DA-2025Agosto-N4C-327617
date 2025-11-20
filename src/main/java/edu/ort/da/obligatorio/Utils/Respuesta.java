@@ -1,6 +1,7 @@
-package edu.ort.da.obligatorio.Controladores;
+package edu.ort.da.obligatorio.Utils;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class Respuesta {
@@ -32,10 +33,8 @@ public class Respuesta {
     }
     
     public static List<Respuesta> lista(Respuesta... respuestas){
-         List<Respuesta> retorno = new ArrayList<Respuesta>();
-         for(Respuesta r:respuestas){
-             retorno.add(r);
-         }
+         List<Respuesta> retorno = new ArrayList<>();
+         retorno.addAll(Arrays.asList(respuestas));
          return retorno;
     }
 }

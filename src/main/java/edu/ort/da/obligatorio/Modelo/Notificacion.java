@@ -1,19 +1,23 @@
 package edu.ort.da.obligatorio.Modelo;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
+import lombok.Data;
+
+@Data
 public class Notificacion {
-
-	private int categoria;
 
 	private String mensaje;
 
+	private String descripcion;
+
 	private LocalDateTime fecha;
 
-	private Propietario propietario;
-
-	public Notificacion(int categorio, String mensaje, LocalDateTime fecha) {
-
+	public Notificacion(String descripcion, String mensaje) {
+		this.descripcion = descripcion;
+		this.mensaje = mensaje;
+		this.fecha = LocalDateTime.now();
 	}
 
 }

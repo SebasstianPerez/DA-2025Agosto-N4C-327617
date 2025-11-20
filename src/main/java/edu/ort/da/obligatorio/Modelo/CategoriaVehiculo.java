@@ -1,15 +1,12 @@
 package edu.ort.da.obligatorio.Modelo;
 
-public enum CategoriaVehiculo {
+import lombok.Data;
 
-	AUTO,
+@Data
+public class CategoriaVehiculo {
+    private String Nombre;
 
-	CAMIONETA,
-
-	CAMION,
-
-	OMNIBUS,
-
-	MOTOCICLETA;
-
+	public CategoriaVehiculo(String nombre){
+		this.Nombre = nombre;
+	}
 }

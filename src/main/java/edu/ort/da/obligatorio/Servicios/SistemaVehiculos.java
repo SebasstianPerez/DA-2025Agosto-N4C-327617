@@ -1,29 +1,51 @@
 package edu.ort.da.obligatorio.Servicios;
 
+import java.util.ArrayList;
 import java.util.Collection;
 
+import org.springframework.stereotype.Service;
+
+import edu.ort.da.obligatorio.Excepciones.PeajeException;
+import edu.ort.da.obligatorio.Modelo.CategoriaVehiculo;
+import edu.ort.da.obligatorio.Modelo.Propietario;
 import edu.ort.da.obligatorio.Modelo.Vehiculo;
 
+@Service
 public class SistemaVehiculos {
+	private Collection<Vehiculo> vehiculos = new ArrayList<>();
+	private Collection<CategoriaVehiculo> categorias = new ArrayList<>();
+	private static Long nextVehiculoId = 1L;
 
-	private SistemaVehiculos sistemaVehiculos;
-
-	private Vehiculo vehiculo;
-
-	public static SistemaVehiculos getInstancia() {
-		return null;
+	public void agregarVehiculo(Vehiculo data) {
+		data.setId(getNextVehiculoId());
+		vehiculos.add(data);
 	}
 
-	private void SistemaVehiculos() {
-
+	public static synchronized Long getNextVehiculoId() {
+		return nextVehiculoId++;
 	}
 
-	public Collection<Vehiculo> getVehiculosXPropietario(String cedula) {
-		return null;
+	public void agregarCategoriaVehiculo(CategoriaVehiculo data) {
+		categorias.add(data);
 	}
 
-	public Vehiculo getVehiculoXMatricula(String matricula) {
-		return null;
+	public void asignarVehiculoAPropietario(String matricula, Propietario propietario) throws PeajeException {
+		Vehiculo vehiculo = buscarVehiculoPorMatricula(matricula);
+		if (vehiculo != null) {
+
+			vehiculo.setPropietario(propietario);
+			propietario.addVehiculo(vehiculo);
+
+		} else {
+			throw new PeajeException("Vehículo no encontrado: " + matricula);
+		}
+	}
+
+	public Vehiculo buscarVehiculoPorMatricula(String matricula) {
+		return vehiculos.stream()
+				.filter(p -> p.getMatricula().equals(matricula))
+				.findFirst()
+				.orElse(null);
 	}
 
 }

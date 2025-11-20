@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tablero de Control del Propietario</title>
+    <link rel="stylesheet" href="style/dashboard.css">
+
+    <script src="vistaWeb.js"></script>
+    <script src="sse.js"></script>
+</head>
+
+<body>
+    <script src="utilesVista.js"></script>
+
+    <div class="content">
+        <iframe id="contenidoFrame" src="propietario-dashboard.html" frameborder="0"></iframe>
+    </div>
+
+    <script>
+        urlIniciarVista = '/dashboard/vistaConectada';
+        urlCierreVista = "/dashboard/logout";
+        urlRegistroSSE = "/dashboard/registrarSSE";
+
+        function cargarContenido(pagina) {
+            document.getElementById('contenidoFrame').src = pagina;
+        }
+
+        function procesarMensajeSSE(mensaje) {
+
+            var iframe = document.getElementById('contenidoFrame');
+            var iframeWindow = iframe.contentWindow;
+            iframeWindow.procesarResultadosSubmit(mensaje);
+        }
+
+        function mostrar_redireccionLogin(url) {
+            window.location.href = url;
+        }
+
+        function procesarMensajeSSE(mensaje) {
+            var iframe = document.getElementById('contenidoFrame');
+            var iframeWindow = iframe.contentWindow;
+            iframeWindow.procesarResultadosSubmit(mensaje);
+        }
+
+        function conexionSSECerrada(event) {
+            cerrar();
+        }
+        async function cerrar() {
+            let respuesta = await mostrarConfirmacion("Se ha cerrado la aplicacion en esta ventana", "Intenar volver a abrirla", "Cerrar");
+            if (respuesta) {
+                location.reload();
+            } else {
+                document.body.innerHTML = '';
+            }
+        }
+
+        function mostrar_error(mensaje) {
+            mostrarMensaje(`Error en la emulación: ${mensaje}`, 'error');
+        }
+    </script>
+
+</body>
+
+</html>

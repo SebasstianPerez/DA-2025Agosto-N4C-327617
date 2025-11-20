@@ -1,23 +1,182 @@
 package edu.ort.da.obligatorio;
 
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.stereotype.Component;
+
 import edu.ort.da.obligatorio.Modelo.Administrador;
+import edu.ort.da.obligatorio.Modelo.Bonificacion;
+import edu.ort.da.obligatorio.Modelo.CategoriaVehiculo;
+import edu.ort.da.obligatorio.Modelo.EstrategiaBonificacion;
+import edu.ort.da.obligatorio.Modelo.EstrategiaBonificacionNull;
+import edu.ort.da.obligatorio.Modelo.EstrategiaExonerados;
+import edu.ort.da.obligatorio.Modelo.EstrategiaFrecuentes;
+import edu.ort.da.obligatorio.Modelo.EstrategiaTrabajadores;
 import edu.ort.da.obligatorio.Modelo.Propietario;
+import edu.ort.da.obligatorio.Modelo.PropietarioBonificacion;
+import edu.ort.da.obligatorio.Modelo.Puesto;
+import edu.ort.da.obligatorio.Modelo.Tarifa;
+import edu.ort.da.obligatorio.Modelo.Vehiculo;
 import edu.ort.da.obligatorio.Servicios.Fachada;
 
-public class DatosDePrueba {
+@Component
+public class DatosDePrueba implements CommandLineRunner {
+    @Autowired
+    private Fachada fachada;
 
-    static {
-        Fachada fachada = Fachada.getInstancia();
-        Propietario propietario = new Propietario("1234123", "juan1234", "JuanPerez1234", "Perez", 1000);
-        Administrador admin = new Administrador("1234123", "admin", "admin", "");
+    @Override
+    public void run(String... args) throws Exception {
 
+        // AGREGAR USUARIOS
+        Administrador admin = new Administrador("12345678", "admin.123", "Usuario", "Administrador");
+
+        Propietario propietario = new Propietario("23456789", "prop.123", "Usuario", "Propietario", 1000);
+        Propietario propietario2 = new Propietario("55544433", "prop.otro", "Maria", "Gonzalez", 5000);
+
+        fachada.addPropietario(propietario2);
         fachada.addPropietario(propietario);
         fachada.addAdministrador(admin);
 
-        System.out.println("Datos de prueba cargados: Propietario Juan Perez.");
-    }
+        // AGREGAR CATEGORIAS
 
-    public static void main(String[] args) {
-        System.out.println("El programa principal comenzó.");
+        CategoriaVehiculo cat1 = new CategoriaVehiculo("AUTO");
+        CategoriaVehiculo cat2 = new CategoriaVehiculo("CAMION");
+        CategoriaVehiculo cat3 = new CategoriaVehiculo("MOTO");
+
+        fachada.addCategoriaVehiculo(cat1);
+        fachada.addCategoriaVehiculo(cat2);
+        fachada.addCategoriaVehiculo(cat3);
+
+        // VEHICULOS
+
+        Vehiculo v1 = new Vehiculo("AIJ1234", cat1, "Verde", "Tera", propietario);
+        Vehiculo v2 = new Vehiculo("KBC7890", cat2, "Rojo", "Volquetes S.A.", propietario);
+        fachada.addVehiculo(v1);
+        fachada.addVehiculo(v2);
+
+        fachada.asignarVehiculoAPropietario(propietario, v2);
+        fachada.asignarVehiculoAPropietario(propietario, v1);
+
+        Vehiculo v3 = new Vehiculo("MNP1122", cat3, "Negra", "Yamaha", propietario2);
+        fachada.addVehiculo(v3);
+        fachada.asignarVehiculoAPropietario(propietario2, v3);
+
+        Vehiculo v4 = new Vehiculo("XYZ9988", cat1, "Gris", "Nissan", propietario2);
+        fachada.addVehiculo(v4);
+        fachada.asignarVehiculoAPropietario(propietario2, v4);
+
+        // ESTRATEGIAS
+
+        EstrategiaBonificacion exoneradosStrategy = new EstrategiaExonerados();
+        EstrategiaBonificacion trabajadoresStrategy = new EstrategiaTrabajadores();
+        EstrategiaBonificacion frecuentesStrategy = new EstrategiaFrecuentes();
+        EstrategiaBonificacion sinDescuentoStrategy = new EstrategiaBonificacionNull();
+
+        // AGREGAR PUESTOS
+
+        Collection<Tarifa> tarifas = new ArrayList<>();
+        Tarifa tarifa1 = new Tarifa(100, cat1);
+        Tarifa tarifa2 = new Tarifa(200, cat2);
+        Tarifa tarifa3 = new Tarifa(50, cat3);
+
+        tarifas.addAll(Arrays.asList(tarifa1, tarifa2, tarifa3));
+
+        Collection<Tarifa> tarifas2 = new ArrayList<>();
+        Tarifa tarifa4 = new Tarifa(200, cat1);
+        Tarifa tarifa5 = new Tarifa(300, cat2);
+        Tarifa tarifa6 = new Tarifa(100, cat3);
+
+        tarifas2.addAll(Arrays.asList(tarifa4, tarifa5, tarifa6));
+
+        Puesto puesto = new Puesto("Accesos-101", "Accesos 101", tarifas);
+        Puesto puesto2 = new Puesto("Accesos-202", "Accesos 202", tarifas2);
+
+        fachada.agregarPuesto(puesto);
+        fachada.agregarPuesto(puesto2);
+
+        Bonificacion b1 = new Bonificacion("Exonerados", exoneradosStrategy);
+        Bonificacion b2 = new Bonificacion("Trabajadores", trabajadoresStrategy);
+        Bonificacion b3 = new Bonificacion("Frecuentes", frecuentesStrategy);
+        Bonificacion b4 = new Bonificacion("Vacio", sinDescuentoStrategy);
+
+        fachada.agregarBonificacion(b1);
+        fachada.agregarBonificacion(b2);
+        fachada.agregarBonificacion(b3);
+        fachada.agregarBonificacion(b4);
+
+        PropietarioBonificacion pb = new PropietarioBonificacion(propietario, puesto, b2);
+        PropietarioBonificacion pb1 = new PropietarioBonificacion(propietario, puesto2, b4);
+
+        fachada.agregarPropietarioBonificacion(
+                propietario.getCedula(),
+                puesto.getDireccion(),
+                b2.getNombre());
+
+        fachada.agregarPropietarioBonificacion(
+                propietario.getCedula(),
+                puesto2.getDireccion(),
+                b4.getNombre());
+
+        fachada.agregarPropietarioBonificacion(
+                propietario2.getCedula(),
+                puesto2.getDireccion(),
+                b1.getNombre());
+
+        fachada.agregarPropietarioBonificacion(
+                propietario2.getCedula(),
+                puesto.getDireccion(),
+                b3.getNombre());
+
+        fachada.emularTransito(
+                puesto.getDireccion(),
+                v1.getMatricula(),
+                LocalDateTime.now().minusDays(10));
+
+        fachada.emularTransito(
+                puesto.getDireccion(),
+                v1.getMatricula(),
+                LocalDateTime.now().minusDays(5));
+
+        fachada.emularTransito(
+                puesto2.getDireccion(),
+                v1.getMatricula(),
+                LocalDateTime.now().minusDays(3));
+
+        fachada.emularTransito(
+                puesto.getDireccion(),
+                v2.getMatricula(),
+                LocalDateTime.now().minusHours(10));
+
+        fachada.emularTransito(
+                puesto2.getDireccion(),
+                v2.getMatricula(),
+                LocalDateTime.now().minusHours(5));
+
+        fachada.emularTransito(
+                puesto.getDireccion(),
+                v3.getMatricula(),
+                LocalDateTime.now().minusDays(1));
+
+        fachada.emularTransito(
+                puesto2.getDireccion(),
+                v4.getMatricula(),
+                LocalDateTime.now().minusHours(2));
+
+        fachada.emularTransito(
+                puesto.getDireccion(),
+                v4.getMatricula(),
+                LocalDateTime.now().minusHours(1));
+
+        fachada.emularTransito(
+                puesto.getDireccion(),
+                v4.getMatricula(),
+                LocalDateTime.now().minusHours(2));
+
+        System.out.println("--- PRECARGA FINALIZADA ---");
     }
 }

@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Monitor de actividad</title>
+    <link rel="stylesheet" href="./style/dashboard.css">
+    <script src='vistaWeb.js'></script>
+
+</head>
+
+<body>
+    <script src='utilesVista.js'></script>
+    <div class="dashboard-wrapper">
+        <div class="dashboard-header">
+            <h1>Tablero de control del propietario</h1>
+            <a href="#" class="salir-link">Salir</a>
+        </div>
+
+        <h2 class="section-title">Resumen del propietario</h2>
+        <div class="dashboard-grid summary" id="resumen-propietario">
+
+            <div class="card">
+                <span class="summary-label">Nombre Completo</span>
+                <p class="summary-value" id="nombre-completo">Cargando...</p>
+            </div>
+
+            <div class="card">
+                <span class="summary-label">Estado</span>
+                <p class="summary-value" id="estado">Cargando...</p>
+            </div>
+
+            <div class="card saldo-actual">
+                <span class="summary-label">Saldo Actual</span>
+                <p class="summary-value" id="saldo-actual">Cargando...</p>
+            </div>
+
+        </div>
+
+        <div class="dashboard-grid details">
+
+            <div class="card" id="bonificaciones-asignadas">
+                <span class="card-title">Bonificaciones asignadas</span>
+                <div id="tabla-bonificaciones">
+                    <p>Cargando bonificaciones...</p>
+                </div>
+            </div>
+
+            <div class="card" id="vehiculos-registrados">
+                <span class="card-title">Vehículos registrados</span>
+                <div id="tabla-vehiculos">
+                    <p>Cargando vehículos...</p>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="full-width-section">
+            <h2 class="section-title">Tránsitos realizados</h2>
+            <div class="card" id="transitos-realizados">
+                <div id="tabla-transitos">
+                    <p>Cargando tránsitos...</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="full-width-section system-notifications">
+            <h2 class="section-title">Notificaciones del sistema</h2>
+            <div class="notifications-section">
+                <button id="btn-borrar-notificaciones">Borrar notificaciones</button>
+            </div>
+        </div>
+
+    </div>
+
+
+    <script>
+        urlIniciarVista = '/dashboard/vistaConectada';
+        urlCierreVista = "/auth/cliente/logout";
+        urlRegistroSSE = "/dashboard/registrarSSE";
+
+
+
+        function mostrar_datos(data) {
+            const {
+                estado,
+                nombreCompleto,
+                saldoActual,
+                bonificaciones,
+                vehiculos,
+                transitos,
+                notificaciones
+            } = data;
+
+            mostrar_resumen(estado, nombreCompleto, saldoActual);
+            mostrar_bonificaciones(bonificaciones);
+            mostrar_vehiculos(vehiculos);
+            mostrar_transitos(transitos);
+            mostrar_notificaciones(notificaciones);
+        }
+
+        function mostrar_resumen(estado, nombreCompleto, saldoActual) {
+            const saldoFormateado = (typeof saldoActual === 'number') ? `$ ${saldoActual.toFixed(2)}` : saldoActual;
+
+            document.getElementById('nombre-completo').textContent = nombreCompleto;
+            document.getElementById('estado').textContent = estado;
+            document.getElementById('saldo-actual').textContent = saldoFormateado;
+        }
+
+        function mostrar_bonificaciones(data) {
+            const contenedor = document.getElementById('tabla-bonificaciones');
+            if (!data || data.length === 0) {
+                contenedor.innerHTML = '<p>No hay bonificaciones asignadas.</p>';
+                return;
+            }
+            const htmlTabla = crearTablaDesdeJson(data);
+            contenedor.innerHTML = htmlTabla;
+        }
+
+        function mostrar_vehiculos(data) {
+            const contenedor = document.getElementById('tabla-vehiculos');
+            if (!data || data.length === 0) {
+                contenedor.innerHTML = '<p>No hay vehículos registrados.</p>';
+                return;
+            }
+            const htmlTabla = crearTablaDesdeJson(data, (indice, objeto) => {
+                mostrarMensaje(`Detalles del vehículo: ${objeto.matricula} (${objeto.modelo})`);
+            });
+            contenedor.innerHTML = htmlTabla;
+        }
+
+        function mostrar_transitos(data) {
+            const contenedor = document.getElementById('tabla-transitos');
+            if (!data || data.length === 0) {
+                contenedor.innerHTML = '<p>No se han realizado tránsitos.</p>';
+                return;
+            }
+            const htmlTabla = crearTablaDesdeJson(data);
+            contenedor.innerHTML = htmlTabla;
+        }
+
+        function mostrar_notificaciones(data) {
+            const contenedor = document.querySelector('.notifications-section');
+            if (!contenedor || !data) return;
+
+            if (data.length > 0) {
+                const notifHTML = data.map(n => `<p class="notification-item">${n.fecha}: ${n.mensaje}</p>`).join('');
+                contenedor.innerHTML = notifHTML + contenedor.querySelector('button')?.outerHTML || '';
+            } else {
+                contenedor.innerHTML = '<p>No hay notificaciones nuevas.</p>' + contenedor.querySelector('button')?.outerHTML || '';
+            }
+        }
+
+
+        document.addEventListener('DOMContentLoaded', ejecutarCodigoDocumentReady);
+
+        function ejecutarCodigoDocumentReady() {
+            const salirLink = document.querySelector('.salir-link');
+            if (salirLink) {
+                salirLink.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    submit('/auth/cliente/logout', '');
+                });
+            }
+
+            const btnBorrar = document.getElementById('btn-borrar-notificaciones');
+
+            if (btnBorrar) {
+                btnBorrar.addEventListener('click', async function () {
+
+                    let respuesta = await mostrarConfirmacion("¿Está seguro que desea borrar todas las notificaciones?", "Sí", "No");
+                    if (respuesta) {
+                        submit('/usuario/borrarNotificaciones', '', 'GET');
+                    }
+
+                });
+            }
+        }
+
+        function mostrar_usuarioNoAutenticado(url) {
+            window.location.href = url;
+        }
+
+        async function excepcionDeAplicacion(mensaje) {
+            await mostrarMensaje(mensaje);
+        }
+
+    </script>
+</body>
+
+</html>

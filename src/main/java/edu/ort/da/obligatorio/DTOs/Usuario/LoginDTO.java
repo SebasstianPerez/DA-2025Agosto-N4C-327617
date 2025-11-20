@@ -5,11 +5,11 @@ import lombok.Data;
 @Data
 public class LoginDTO {
 
-	private String nombre;
+	private String cedula;
 
 	private String contrasena;
 
-	public LoginDTO(String nombre, String contrasena) {
+	public LoginDTO(String cedula, String contrasena) {
 
 	}
 
