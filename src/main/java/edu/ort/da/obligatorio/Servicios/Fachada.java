@@ -48,8 +48,8 @@ public class Fachada {
         return sistemaUsuarios.getAdministrador(cedula);
     }
 
-    public Propietario getPropietario(String cedula) {
-        return sistemaUsuarios.getPropietario(cedula);
+    public Propietario getPropietario(String cedula) throws PeajeException {
+        return sistemaUsuarios.getPropietarioByCedula(cedula);
     }
 
     public Propietario loginPropietario(String cedula, String contrasena) throws PeajeException {
@@ -92,7 +92,7 @@ public class Fachada {
     public Transito emularTransito(String puestoDireccion, String matricula, LocalDateTime fechaHora)
             throws PeajeException {
         Vehiculo vehiculo = sistemaVehiculos.buscarVehiculoPorMatricula(matricula);
-        return sistemaTransito.emularTransito(puestoDireccion, vehiculo, vehiculo.getPropietario(), fechaHora);
+        return sistemaTransito.emularTransito(puestoDireccion, vehiculo, fechaHora);
     }
 
     public List<String> obtenerEstadosPropietario() {

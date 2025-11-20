@@ -41,7 +41,7 @@ public class UsuarioController {
     }
 
     @PostMapping("/obtenerUsuario")
-    public List<Respuesta> obtenerUsuario(@RequestParam String cedula) {
+    public List<Respuesta> obtenerUsuario(@RequestParam String cedula) throws PeajeException {
         PropietarioDTO entity = PropietarioMapper.toDTO(fachada.getPropietario(cedula));
         System.out.println(entity);
         return Respuesta.lista(new Respuesta("propietario", entity));
