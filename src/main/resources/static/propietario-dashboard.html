@@ -77,7 +77,7 @@
 
     <script>
         urlIniciarVista = '/dashboard/vistaConectada';
-        urlCierreVista = "/auth/logout";
+        urlCierreVista = "/auth/cliente/logout";
         urlRegistroSSE = "/dashboard/registrarSSE";
 
 
@@ -85,7 +85,7 @@
         function mostrar_datos(data) {
             const {
                 estado,
-                nombre,
+                nombreCompleto,
                 saldoActual,
                 bonificaciones,
                 vehiculos,
@@ -93,17 +93,17 @@
                 notificaciones
             } = data;
 
-            mostrar_resumen(estado, nombre, saldoActual);
+            mostrar_resumen(estado, nombreCompleto, saldoActual);
             mostrar_bonificaciones(bonificaciones);
             mostrar_vehiculos(vehiculos);
             mostrar_transitos(transitos);
             mostrar_notificaciones(notificaciones);
         }
 
-        function mostrar_resumen(estado, nombre, saldoActual) {
+        function mostrar_resumen(estado, nombreCompleto, saldoActual) {
             const saldoFormateado = (typeof saldoActual === 'number') ? `$ ${saldoActual.toFixed(2)}` : saldoActual;
 
-            document.getElementById('nombre-completo').textContent = nombre;
+            document.getElementById('nombre-completo').textContent = nombreCompleto;
             document.getElementById('estado').textContent = estado;
             document.getElementById('saldo-actual').textContent = saldoFormateado;
         }
@@ -160,7 +160,7 @@
             if (salirLink) {
                 salirLink.addEventListener('click', function (e) {
                     e.preventDefault();
-                    submit('/auth/logout', '');
+                    submit('/auth/cliente/logout', '');
                 });
             }
 

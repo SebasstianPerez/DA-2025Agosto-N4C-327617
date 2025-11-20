@@ -13,7 +13,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import edu.ort.da.obligatorio.DTOs.Mappers.PuestoMapper;
+import edu.ort.da.obligatorio.DTOs.Mappers.TransitoMapper;
 import edu.ort.da.obligatorio.DTOs.Transito.PuestoDTO;
+import edu.ort.da.obligatorio.DTOs.Transito.TransitoDTO;
 import edu.ort.da.obligatorio.Excepciones.PeajeException;
 import edu.ort.da.obligatorio.Servicios.Fachada;
 import edu.ort.da.obligatorio.Utils.Respuesta;
@@ -37,8 +39,8 @@ public class TransitoController {
     public List<Respuesta> CrearTransito(@RequestParam String puestoDireccion, @RequestParam String matricula,
             @RequestParam LocalDateTime fechaHora) throws PeajeException {
                 
-        fachada.emularTransito(puestoDireccion, matricula, fechaHora);
-        return Respuesta.lista(new Respuesta("mensajeExito", "Tránsito creado con éxito"));
+        TransitoDTO transito = TransitoMapper.mapToTransitoDTO(fachada.emularTransito(puestoDireccion, matricula, fechaHora));
+        return Respuesta.lista(new Respuesta("resultadoEmulacion", transito));
     }
 
 }

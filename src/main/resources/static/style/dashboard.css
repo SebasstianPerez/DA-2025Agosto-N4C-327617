@@ -258,6 +258,7 @@ body {
    NOTIFICACIONES
    ========================================================== */
 
+/* --- Contenedor Principal --- */
 .system-notifications {
     /* Manteniendo un estilo de alerta */
     background-color: #fff8e1;
@@ -268,19 +269,47 @@ body {
     margin-top: 40px;
 }
 
+/* --- Sección de Notificaciones y Botón --- */
 .notifications-section {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    flex-wrap: wrap;
-    /* Para dispositivos pequeños */
+    /* Quitamos el display: flex aquí para que los elementos fluyan como bloques */
+    /* Si decides mantener el flex, usa flex-direction: column; */
+    display: block;
+    /* Asegura que ocupe todo el ancho disponible */
+    padding-top: 10px;
 }
 
+/* --- Botón de Borrar (Ajuste) --- */
+#btn-borrar-notificaciones {
+    /* Asegura que el botón se muestre antes o después de la lista de notificaciones */
+    display: block;
+    margin-bottom: 15px;
+    /* Separación debajo del botón */
+    padding: 8px 15px;
+    background-color: #ffb74d;
+    /* Naranja */
+    border: none;
+    border-radius: var(--border-radius);
+    color: #424242;
+    cursor: pointer;
+}
+
+/* --- Estilo de las Notificaciones (<p>) --- */
+/*
+  Asumimos que las notificaciones son elementos <p> o similares.
+  Estos se apilarán automáticamente porque display: block es el predeterminado
+  para los párrafos y divs, y el contenedor .notifications-section ya no es flex.
+*/
 .notifications-section p {
     color: #a87900;
     /* Texto oscuro para contraste */
     margin: 5px 0;
-    flex-grow: 1;
+    /* Un poco de margen vertical para separarlas */
+    padding: 10px;
+    background-color: #fffde7;
+    /* Fondo más claro para cada notificación */
+    border-radius: 4px;
+    border-left: 5px solid #ff9800;
+    /* Borde de color para resaltar */
 }
 
 #btn-borrar-notificaciones {
@@ -303,14 +332,18 @@ body {
 /* Estilos específicos para la tabla de Bonificaciones */
 #tabla-bonificaciones table {
     /* Eliminar el espacio en blanco de las celdas con bordes colapsados */
-    table-layout: fixed; /* Esto ayuda a que el ancho de las columnas sea predecible */
+    table-layout: fixed;
+    /* Esto ayuda a que el ancho de las columnas sea predecible */
 }
 
-#tabla-bonificaciones th:nth-child(4), /* La columna "Fecha Asignada" (columna 4) */
+#tabla-bonificaciones th:nth-child(4),
+/* La columna "Fecha Asignada" (columna 4) */
 #tabla-bonificaciones td:nth-child(4) {
-    width: 150px; /* Le asignamos un ancho fijo para que no se expanda demasiado */
+    width: 150px;
+    /* Le asignamos un ancho fijo para que no se expanda demasiado */
     font-size: 0.9em;
-    word-break: break-all; /* Permite que el texto largo se rompa */
+    word-break: break-all;
+    /* Permite que el texto largo se rompa */
 }
 
 /* Si tu campo Cedula es largo, también puedes darle un ancho fijo (columna 5) */

@@ -25,8 +25,12 @@ public class Transito {
 
 	private double montoPagado;
 
+	private double saldo;
+
 	public Transito(Vehiculo vehiculo, Puesto puesto, String cedula, double montoTarifaBase,
-			double montoPagado, double montoBonificacion, PropietarioBonificacion propietarioBonificacion, LocalDateTime fecha) {
+			double montoPagado, double montoBonificacion, PropietarioBonificacion propietarioBonificacion,
+			LocalDateTime fecha) {
+
 		this.fecha = LocalDateTime.now();
 		this.vehiculo = vehiculo;
 		this.puesto = puesto;

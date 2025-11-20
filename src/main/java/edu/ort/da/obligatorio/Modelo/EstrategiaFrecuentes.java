@@ -13,7 +13,7 @@ public class EstrategiaFrecuentes extends EstrategiaBonificacion {
     @Override
     public double calcularDescuento(LocalDateTime fechaTransito, double montoBase , Long transitosPreviosHoy) {
 
-        if (transitosPreviosHoy >= 1) {
+        if (transitosPreviosHoy > 1) {
             return montoBase * DESCUENTO_PORCENTAJE;
         }
 

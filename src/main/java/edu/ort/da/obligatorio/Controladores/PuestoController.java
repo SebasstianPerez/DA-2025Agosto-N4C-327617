@@ -29,7 +29,18 @@ public class PuestoController {
 
     @GetMapping("/asignarBonificacion")
     public List<Respuesta> getData() {
-        AsignarBonificacionesDataDTO dto = fachada.obtenerDataAsignarBonificacion();
+
+        AsignarBonificacionesDataDTO dto = new AsignarBonificacionesDataDTO();
+        
+        Collection<String> nombresBonificaciones = fachada.obtenerBonificaciones();
+        Collection<String> direccionesPuestos = fachada.obtenerPuestos().stream()
+                .map(p -> p.getDireccion())
+                .toList();
+
+        dto.setBonificaciones(nombresBonificaciones);
+        dto.setDireccionPuesto(direccionesPuestos);
+    
+
         return Respuesta.lista(new Respuesta("Datos obtenidos", dto));
     }
 }

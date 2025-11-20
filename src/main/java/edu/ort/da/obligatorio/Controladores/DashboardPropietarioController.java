@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.SessionAttribute;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
+import edu.ort.da.obligatorio.DTOs.Mappers.PropietarioMapper;
 import edu.ort.da.obligatorio.DTOs.Usuario.PropietarioDashboardDTO;
 import edu.ort.da.obligatorio.Excepciones.PeajeException;
 import edu.ort.da.obligatorio.Modelo.Propietario;
@@ -53,8 +54,8 @@ public class DashboardPropietarioController implements Observador {
 
         this.userIdSesion = userId;
 
-        PropietarioDashboardDTO dashboardData = fachada.getDashboardData(userId);
         Propietario propietario = fachada.getPropietarioById(userId);
+        PropietarioDashboardDTO dashboardData = PropietarioMapper.toDashboardDTO(propietario);
         propietario.agregarObservador(this);
 
         return Respuesta.lista(new Respuesta("datos", dashboardData));
@@ -69,9 +70,10 @@ public class DashboardPropietarioController implements Observador {
                 return;
             }
 
-            PropietarioDashboardDTO dashboardDataActualizada = fachada.getDashboardData(this.userIdSesion);
+            Propietario propietario = fachada.getPropietarioById(this.userIdSesion);
+            PropietarioDashboardDTO dashboardData = PropietarioMapper.toDashboardDTO(propietario);
 
-            Respuesta respuestaActualizacion = new Respuesta("datos", dashboardDataActualizada);
+            Respuesta respuestaActualizacion = new Respuesta("datos", dashboardData);
 
             System.out.println("Respuesta: " + respuestaActualizacion);
             conexionNavegador.enviarJSON(Respuesta.lista(respuestaActualizacion));

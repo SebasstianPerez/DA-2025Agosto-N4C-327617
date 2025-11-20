@@ -74,25 +74,32 @@ public class SistemaTransito {
 	}
 
 	public Collection<Transito> getTransitosRealizados(String cedula) {
-		return transitos.stream()
+		Collection<Transito> ret = transitos.stream()
 				.filter(transito -> transito.getCedula().equals(cedula))
 				.collect(Collectors.toList());
+
+		return ret;
 	}
 
-	public Long getCantidadTransitosHoy(String cedula) {
-		Collection<Transito> transitos = getTransitosRealizados(cedula);
+	public Long getCantidadTransitosHoy(String cedula, Vehiculo vehiculo) {
+		Collection<Transito> transitosDelPropietario = getTransitosRealizados(cedula);
+
 		LocalDateTime inicioHoy = LocalDate.now().atStartOfDay();
 
-		int size = transitos.stream()
+		long cantidadTransitos = transitosDelPropietario.stream()
 				.filter(t -> t.getFecha().isAfter(inicioHoy) || t.getFecha().isEqual(inicioHoy))
-				.collect(Collectors.toList()).size();
+				.filter(t -> t.getVehiculo().equals(vehiculo))
+				.count();
 
-		return Long.valueOf(size);
+		System.out.println("Transitos realizados: "+cantidadTransitos);
+
+		return cantidadTransitos;
 	}
 
-	public void emularTransito(String puestoDireccion, Vehiculo vehiculo, Propietario propietario, LocalDateTime fechaHora) throws PeajeException {
+	public Transito emularTransito(String puestoDireccion, Vehiculo vehiculo, Propietario propietario,
+			LocalDateTime fechaHora) throws PeajeException {
 
-		if(!propietario.getEstado().puedeRealizarTransitos()){
+		if (!propietario.getEstado().puedeRealizarTransitos()) {
 			throw new PeajeException("El propietario se encuentra bloqueado y no puede realizar transitos.");
 		}
 
@@ -101,14 +108,11 @@ public class SistemaTransito {
 
 		double montoBase = tarifa.getMonto();
 
-		// Que pasa si el vehiculo no es del propietario?
-
-		// Buscar bonificacion
 		ResultadoCalculoTransito resultado = propietario.calcularMontoNetoAPagar(
 				montoBase,
 				puesto,
 				fechaHora,
-				Long.valueOf(getCantidadTransitosHoy(propietario.getCedula())));
+				Long.valueOf(getCantidadTransitosHoy(propietario.getCedula(), vehiculo)));
 
 		double montoNetoAPagar = resultado.getMontoAPagar();
 
@@ -123,6 +127,8 @@ public class SistemaTransito {
 
 		transito.setId(getNextTransitoId());
 		transitos.add(transito);
+
+		return transito;
 	}
 
 	public Collection<String> getDireccionesPuestos() {

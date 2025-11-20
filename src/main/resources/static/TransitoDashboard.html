@@ -20,8 +20,8 @@
 
     <script>
         urlIniciarVista = '/dashboard/vistaConectada';
-        // urlCierreVista = "/dashboard/vistaDesconectada";
-        urlRegistroSSE = "/dashboard/registrarSSE"; // Al cargarse el menu agenda se registra el SSE
+        urlCierreVista = "/dashboard/logout";
+        urlRegistroSSE = "/dashboard/registrarSSE";
 
         function cargarContenido(pagina) {
             document.getElementById('contenidoFrame').src = pagina;
@@ -31,14 +31,10 @@
 
             var iframe = document.getElementById('contenidoFrame');
             var iframeWindow = iframe.contentWindow;
-            iframeWindow.procesarResultadosSubmit(mensaje); //asumo que el iFrame tiene vistaWeb.js incluida
+            iframeWindow.procesarResultadosSubmit(mensaje);
         }
 
-
-        // --- 2. Lógica Específica de la Vista ---
-
         function mostrar_redireccionLogin(url) {
-            // Redirecciona al usuario a la página de login (la URL que envíe el backend)
             window.location.href = url;
         }
 

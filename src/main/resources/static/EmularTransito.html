@@ -75,13 +75,11 @@
 
                 <div class="resultado-seccion" id="resultado-transito">
                     <h3 class="resultado-title">Resultado</h3>
-                    <p><strong>Propietario:</strong> <span id="prop-nombre">Juan Pérez</span> (<span
-                            id="prop-estado">Activo</span>)</p>
+                    <p><strong>Propietario:</strong> <span id="prop-nombre">Juan Pérez</span></span></p>
                     <p><strong>Categoría:</strong> <span id="transito-categoria">A (Auto)</span></p>
                     <p><strong>Bonificación:</strong> <span id="transito-bonificacion">Residente Costa de Oro
                             (10%)</span></p>
                     <p><strong>Costo del tránsito:</strong> <span id="transito-costo">$ 120.00</span></p>
-                    <p><strong>Saldo luego del tránsito:</strong> <span id="saldo-luego">$ 1400.75</span></p>
                 </div>
             </div>
 
@@ -188,10 +186,8 @@
             © 2025 - Administración
         </footer>
         <script>
-            // ... Todo el código JavaScript va aquí
             urlIniciarVista = '/transito/inicializarVista'; // Endpoint para cargar puestos y tarifas iniciales
 
-            // Variable global para almacenar todos los puestos con sus tarifas. 
             let puestosConTarifas = [];
             let inputCedula;
             let selectPuesto;
@@ -200,7 +196,6 @@
             let btnCambiarEstado;
             let selectPuestoEmular;
 
-            // --- FUNCIÓN AUXILIAR DE PINTADO DE TARIFAS ---
             function mostrar_tarifasPuesto(tarifas) {
                 const contenedorTabla = document.getElementById('tabla-tarifas');
 
@@ -220,19 +215,15 @@
         `;
             }
 
-            // --- FUNCIONES ESPECÍFICAS DE CARGA (Para llenar los selects) ---
-
             function mostrar_puestos(puestos) {
                 puestosConTarifas = puestos;
                 selectPuestoEmular = document.getElementById('puesto');
                 const selectPuestoAsignacion = document.getElementById('puestos-select');
 
-                // 1. Limpiar opciones previas
                 const defaultOption = '<option value="" disabled selected>Seleccione un puesto</option>';
                 selectPuestoEmular.innerHTML = defaultOption;
                 selectPuestoAsignacion.innerHTML = defaultOption;
 
-                // 2. Llenar AMBOS selects con los puestos
                 puestosConTarifas.forEach(puesto => {
 
                     const claveUnica = puesto.direccion;
@@ -266,38 +257,29 @@
                     return;
                 }
 
-                // A. Actualizar la información del propietario
                 document.getElementById('prop-asignacion-nombre').textContent = data.nombre;
                 document.getElementById('prop-asignacion-estado').textContent = data.estado;
 
-                // --- B. CARGAR TABLA DE BONIFICACIONES ASIGNADAS CON crearTablaDesdeJson ---
 
-                // 1. Obtener el contenedor de la tabla (usando la estructura de tu HTML)
                 const contenedorTabla = document.querySelector('.bonificaciones-asignadas .table-container');
 
-                // 2. Determinar la fuente de datos (asumiendo que es 'bonificacionesAsignadas' o 'bonificaciones')
                 const bonificaciones = data.bonificacionesAsignadas || data.bonificaciones;
 
-                // 3. Generar el HTML de la tabla
                 const htmlTabla = crearTablaDesdeJson(bonificaciones);
 
-                // 4. Inyectar el HTML en el contenedor
                 contenedorTabla.innerHTML = htmlTabla;
 
-                // 5. Agregar el título (si tu HTML lo tenía por separado, asegúrate de mantenerlo)
                 const h4Title = document.createElement('h4');
                 h4Title.textContent = 'Bonificaciones asignadas';
                 contenedorTabla.prepend(h4Title);
 
-                // Opcional: Mostrar un mensaje de éxito
                 actualizar_todos_los_modulos(data);
-                mostrar_mensajeExito(`Propietario ${data.nombre} encontrado correctamente.`);
+                mostrar_mensajeExito(`Propietario ${data.nombreCompleto} encontrado correctamente.`);
             }
 
             function mostrar_estados(estados) {
                 const selectEstados = document.getElementById('select-nuevo-estado');
 
-                // 1. Limpiar opciones previas
                 selectEstados.innerHTML = '<option value="" disabled selected>Seleccione nuevo estado</option>';
 
                 if (!estados || estados.length === 0) {
@@ -306,7 +288,6 @@
                     return;
                 }
 
-                // 2. Llenar el select con los estados recibidos
                 estados.forEach(estado => {
                     if (estado && typeof estado === 'string' && estado.trim().length > 0) {
                         const option = document.createElement('option');
@@ -331,26 +312,22 @@
                     return;
                 }
 
-                // Asumimos que data es el objeto del propietario, si el backend retorna un array de un elemento, usamos data[0]
                 const propietario = Array.isArray(data) ? data[0] : data;
 
-                if (!propietario.nombre || !propietario.estado) {
+                if (!propietario.nombreCompleto || !propietario.estado) {
                     mostrarMensaje('Datos del propietario incompletos.', 'error');
                     btnCambiarEstado.disabled = true;
                     return;
                 }
 
-                // 1. Actualizar la interfaz con los datos
-                propNombre.textContent = propietario.nombre;
-                propEstado.textContent = propietario.estado; // Mostrar el estado actual
+                propNombre.textContent = propietario.nombreCompleto;
+                propEstado.textContent = propietario.estado;
 
-                // 2. Pre-seleccionar el estado actual en el select
                 selectNuevoEstado.value = propietario.estado;
 
-                // 3. Habilitar el botón de acción
                 btnCambiarEstado.disabled = false;
 
-                mostrarMensaje(`Propietario ${propietario.nombre} cargado. Estado actual: ${propietario.estado}`, 'success');
+                mostrarMensaje(`Propietario ${propietario.nombreCompleto} cargado. Estado actual: ${propietario.estado}`, 'success');
             }
 
             function mostrar_bonificaciones(bonificaciones) {
@@ -489,17 +466,16 @@
             function actualizar_modulo_asignacion(data) {
                 const propietario = Array.isArray(data) ? data[0] : data;
 
-                if (!propietario || !propietario.nombre || !propietario.estado) {
+                if (!propietario || !propietario.nombreCompleto || !propietario.estado) {
                     document.getElementById('prop-asignacion-nombre').textContent = '...';
                     document.getElementById('prop-asignacion-estado').textContent = '...';
                     return;
                 }
 
-                document.getElementById('prop-asignacion-nombre').textContent = propietario.nombre;
+                document.getElementById('prop-asignacion-nombre').textContent = propietario.nombreCompleto;
                 document.getElementById('prop-asignacion-estado').textContent = propietario.estado;
 
-                // ...
-                mostrar_mensajeExito(`Propietario ${propietario.nombre} cargado en Asignación.`);
+                mostrar_mensajeExito(`Propietario ${propietario.nombreCompleto} cargado en Asignación.`);
             }
 
             function actualizar_modulo_estado(data) {
@@ -507,14 +483,14 @@
                 const propNombre = document.getElementById('prop-estado-nombre');
                 const propEstado = document.getElementById('prop-estado-actual');
 
-                if (!propietario || !propietario.nombre || !propietario.estado) {
+                if (!propietario || !propietario.nombreCompleto || !propietario.estado) {
                     propNombre.textContent = '...';
                     propEstado.textContent = '...';
                     btnCambiarEstado.disabled = true;
                     return;
                 }
 
-                propNombre.textContent = propietario.nombre;
+                propNombre.textContent = propietario.nombreCompleto;
                 propEstado.textContent = propietario.estado;
                 selectNuevoEstado.value = propietario.estado;
                 btnCambiarEstado.disabled = false;
@@ -531,15 +507,12 @@
             }
 
             function mostrar_resultadoEmulacion(data) {
-                document.getElementById('prop-nombre').textContent = data.propietarioNombre;
-                document.getElementById('prop-estado').textContent = data.propietarioEstado;
+                document.getElementById('prop-nombre').textContent = data.nombrePropietario;
                 document.getElementById('prop-estado-nombre').textContent = data.propietarioNombre;
-                document.getElementById('prop-estado-actual').textContent = data.propietarioEstado;
                 document.getElementById('transito-categoria').textContent = data.categoria;
-                document.getElementById('transito-bonificacion').textContent = data.bonificacionNombre || 'Ninguna';
+                document.getElementById('transito-bonificacion').textContent = data.bonificacion || 'Ninguna';
 
-                document.getElementById('transito-costo').textContent = `$ ${data.costoTransito.toFixed(2)}`;
-                document.getElementById('saldo-luego').textContent = `$ ${data.saldoLuego.toFixed(2)}`;
+                document.getElementById('transito-costo').textContent = `$ ${data.montoPagado.toFixed(2)}`;
             }
 
             function mostrar_error(mensaje) {
@@ -555,7 +528,7 @@
                 if (salirLink) {
                     salirLink.addEventListener('click', function (e) {
                         e.preventDefault();
-                        submit('/auth/logout', '');
+                        submit('/auth/admin/logout', '');
                     });
                 }
             });

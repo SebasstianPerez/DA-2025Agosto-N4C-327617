@@ -11,9 +11,7 @@ public class PropietarioDTO {
 
 	private String contrasena;
 
-	private String nombre;
-
-	private String apellido;
+	private String nombreCompleto;
 
 	private String estado;
 

@@ -14,9 +14,6 @@ import javax.security.auth.login.LoginException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import edu.ort.da.obligatorio.DTOs.Usuario.BonificacionAsignadaDTO;
-import edu.ort.da.obligatorio.DTOs.Usuario.LoginDTO;
-import edu.ort.da.obligatorio.DTOs.Usuario.PropietarioDTO;
 import edu.ort.da.obligatorio.Excepciones.PeajeException;
 import edu.ort.da.obligatorio.Modelo.Administrador;
 import edu.ort.da.obligatorio.Modelo.Bonificacion;
@@ -63,10 +60,6 @@ class SistemaUsuarios {
                 .collect(Collectors.toList());
     }
 
-    public Propietario getUsuarioXCedula(String cedula) {
-        return null;
-    }
-
     public Collection<Propietario> getUsuarios() {
         return (Collection) propietarios;
     }
@@ -104,12 +97,12 @@ class SistemaUsuarios {
                 return usuario;
             }
         }
-        
+
         return null;
     }
 
-    public Propietario loginPropietario(LoginDTO datos) throws PeajeException {
-        Propietario propietario = (Propietario) login(datos.getCedula(), datos.getContrasena(), propietarios);
+    public Propietario loginPropietario(String cedula, String contrasena) throws PeajeException {
+        Propietario propietario = (Propietario) login(cedula, contrasena, propietarios);
 
         if (propietario == null) {
             throw new PeajeException("Acceso denegado (Cédula y/o contraseña incorrectos)");
@@ -120,16 +113,15 @@ class SistemaUsuarios {
                     + propietario.getEstado().getNombreEstado());
         }
 
-        // Exceptions
         return propietario;
     }
 
-    public Administrador loginAdministrador(LoginDTO datos) throws PeajeException {
-        if (this.estaAdminLogueado(datos.getCedula())) {
+    public Administrador loginAdministrador(String cedula, String contrasena) throws PeajeException {
+        if (this.estaAdminLogueado(cedula)) {
             throw new PeajeException("Ud. Ya está logueado");
         }
 
-        Administrador admin = (Administrador) login(datos.getCedula(), datos.getContrasena(), administradores);
+        Administrador admin = (Administrador) login(cedula, contrasena, administradores);
         if (admin == null) {
             throw new PeajeException("Acceso denegado (Cédula y/o contraseña incorrectos)");
         }
@@ -139,15 +131,26 @@ class SistemaUsuarios {
         return admin;
     }
 
-    public boolean estaAdminLogueado(String nombre) {
+    public boolean estaAdminLogueado(String cedula) {
         return sesiones.stream()
-                .anyMatch(a -> a.getAdmin().getNombre().equals(nombre));
+                .anyMatch(a -> a.getAdmin().getCedula().equals(cedula));
     }
 
     public void registrarAdminLogueado(Administrador admin) {
         if (!estaAdminLogueado(admin.getNombre())) {
             Sesion sesion = new Sesion(admin);
             sesiones.add(sesion);
+        }
+    }
+
+    public void logoutAdmin(String cedula) throws PeajeException {
+        Sesion sesion = sesiones.stream().filter(s -> s.getAdmin().getCedula().equals(cedula)).findFirst().orElse(null);
+
+        if (sesion != null) {
+            sesiones.remove(sesion);
+        } else {
+            throw new PeajeException("No se encontro sesion activa");
+
         }
     }
 
@@ -168,9 +171,9 @@ class SistemaUsuarios {
         propietario.limpiarNotificaciones();
     }
 
-    Administrador getAdministrador(LoginDTO dto) {
+    Administrador getAdministrador(String cedula) {
         return administradores.stream()
-                .filter(a -> a.getCedula().equals(dto.getCedula()))
+                .filter(a -> a.getCedula().equals(cedula))
                 .findFirst()
                 .orElse(null);
     }
@@ -198,7 +201,7 @@ class SistemaUsuarios {
     }
 
     public void asignarBonificacion(PropietarioBonificacion pb) throws PeajeException {
-        if(!pb.getPropietario().getEstado().puedeRecibirBonificaciones()){
+        if (!pb.getPropietario().getEstado().puedeRecibirBonificaciones()) {
             throw new PeajeException("El propietario se encuentra en un estado que no permite recibir bonificaciones.");
         }
 
@@ -223,8 +226,8 @@ class SistemaUsuarios {
     public void cambiarEstado(String cedula, String nombreEstadoDestino) throws PeajeException {
         Propietario propietario = getPropietarioByCedula(cedula);
         EstadoPropietario estadoDestinoInstancia = getInstanciaPorNombre(nombreEstadoDestino);
-
         propietario.setEstado(estadoDestinoInstancia);
+
     }
 
     public Bonificacion getBonificacionByNombre(String nombreBonificacion) {
@@ -232,13 +235,6 @@ class SistemaUsuarios {
                 .filter(p -> p.getNombre().equals(nombreBonificacion))
                 .findFirst()
                 .orElse(null);
-    }
-
-    public void asignarBonificacionApi(Propietario propietario, Puesto puesto, String nombreBonificacion) throws PeajeException {
-        Bonificacion bonificacion = getBonificacionByNombre(nombreBonificacion);
-        PropietarioBonificacion pb = new PropietarioBonificacion(propietario, puesto, bonificacion);
-
-        asignarBonificacion(pb);
     }
 
     public void asignarBonificacion(String cedula, Puesto puesto, String bonificacionNombre) throws PeajeException {

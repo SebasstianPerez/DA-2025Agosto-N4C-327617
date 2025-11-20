@@ -6,12 +6,12 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import edu.ort.da.obligatorio.DTOs.Usuario.LoginDTO;
 import edu.ort.da.obligatorio.Excepciones.PeajeException;
 import edu.ort.da.obligatorio.Modelo.Usuario;
 import edu.ort.da.obligatorio.Servicios.Fachada;
 import edu.ort.da.obligatorio.Utils.Respuesta;
 import jakarta.servlet.http.HttpSession;
+
 
 @RestController
 public abstract class LoginControllerAbstracto {
@@ -27,11 +27,7 @@ public abstract class LoginControllerAbstracto {
             HttpSession sesion,
             @RequestParam String cedula,
             @RequestParam String contrasena) throws PeajeException {
-
-        LoginDTO dto = new LoginDTO();
-        dto.setCedula(cedula);
-        dto.setContrasena(contrasena);
-        Usuario usuarioLogueado = getUsuario(dto);
+        Usuario usuarioLogueado = getUsuario(cedula, contrasena);
 
         guardarEstadoUsuario(sesion, usuarioLogueado);
 
@@ -44,6 +40,14 @@ public abstract class LoginControllerAbstracto {
 
     protected abstract String getDestinoLoginExitoso();
 
-    protected abstract Usuario getUsuario(LoginDTO dto) throws PeajeException;
+    protected abstract Usuario getUsuario(String cedula, String contrasena) throws PeajeException;
 
+    @PostMapping("/logout")
+    public List<Respuesta> logout(HttpSession sesion) throws PeajeException {
+        if (sesion != null) {
+            sesion.invalidate();
+        }
+
+        return Respuesta.lista(new Respuesta("usuarioNoAutenticado", "index.html"));
+    }
 }

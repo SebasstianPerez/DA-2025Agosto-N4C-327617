@@ -1,14 +1,16 @@
 package edu.ort.da.obligatorio.DTOs.Mappers;
 
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Date;
 import java.util.stream.Collectors;
 
 import edu.ort.da.obligatorio.DTOs.Transito.TransitoDTO;
 import edu.ort.da.obligatorio.Modelo.Transito;
 
 public class TransitoMapper {
+
+    private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
 
     public static Collection<TransitoDTO> mapToTransitoDTO(Collection<Transito> transitos) {
         if (transitos == null || transitos.isEmpty()) {
@@ -27,7 +29,7 @@ public class TransitoMapper {
 
         TransitoDTO dto = new TransitoDTO();
 
-        dto.setFecha(transito.getFecha());
+        dto.setFecha(transito.getFecha().format(FORMATTER));
         dto.setPuestoDireccion(transito.getPuesto().getDireccion());
         dto.setCategoria(transito.getVehiculo().getCategoria().getNombre());
         dto.setBonificacion(transito.getPropietarioBonificacion().getBonificacion().getNombre());
@@ -41,6 +43,12 @@ public class TransitoMapper {
 
         if (transito.getPuesto() != null) {
             dto.setNombrePuesto(transito.getPuesto().getNombre());
+        }
+
+        String nombre = transito.getPropietarioBonificacion().getPropietario().getNombreCompleto();
+        
+        if(nombre != null){
+            dto.setNombrePropietario(nombre);
         }
 
         return dto;

@@ -1,6 +1,8 @@
 package edu.ort.da.obligatorio.Modelo;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collection;
 
@@ -119,6 +121,14 @@ public class Propietario extends Usuario implements Observable {
 
     public void agregarTransito(Transito transito) throws PeajeException {
         this.transitos.add(transito);
+        this.agregarNotificacion(new Notificacion(
+                "Transito realizado",
+                "Pasaste por el puesto " + 
+                transito.getPuesto().getNombre() + 
+                " con el vehículo " + 
+                transito.getVehiculo().getMatricula()
+            ));
+
         observable.avisar(Eventos.NUEVO_TRANSITO);
     }
 
@@ -127,12 +137,20 @@ public class Propietario extends Usuario implements Observable {
     }
 
     public void setEstado(EstadoPropietario nuevoEstado) throws PeajeException {
+
+        if (this.estado != null) {
+            if (estado.getNombreEstado().equals(nuevoEstado.getNombreEstado())) {
+                throw new PeajeException(
+                        "El propietario ya se encuentra en el estado: " + nuevoEstado.getNombreEstado());
+            }
+        }
+
         this.estado = nuevoEstado;
 
         this.agregarNotificacion(new Notificacion(
                 "Cambio de estado",
                 "Se ha cambiado tu estado en el sistema. Tu estado actual es " + nuevoEstado.getNombreEstado()));
-                
+
         observable.avisar(Eventos.CAMBIO_ESTADO);
     }
 

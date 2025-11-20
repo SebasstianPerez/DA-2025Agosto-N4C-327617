@@ -33,9 +33,12 @@ public class DatosDePrueba implements CommandLineRunner {
     public void run(String... args) throws Exception {
 
         // AGREGAR USUARIOS
-        Propietario propietario = new Propietario("23456789", "prop.123", "Usuario", "Propietario", 1000);
         Administrador admin = new Administrador("12345678", "admin.123", "Usuario", "Administrador");
 
+        Propietario propietario = new Propietario("23456789", "prop.123", "Usuario", "Propietario", 1000);
+        Propietario propietario2 = new Propietario("55544433", "prop.otro", "Maria", "Gonzalez", 5000);
+
+        fachada.addPropietario(propietario2);
         fachada.addPropietario(propietario);
         fachada.addAdministrador(admin);
 
@@ -52,10 +55,20 @@ public class DatosDePrueba implements CommandLineRunner {
         // VEHICULOS
 
         Vehiculo v1 = new Vehiculo("AIJ1234", cat1, "Verde", "Tera", propietario);
-
+        Vehiculo v2 = new Vehiculo("KBC7890", cat2, "Rojo", "Volquetes S.A.", propietario);
         fachada.addVehiculo(v1);
+        fachada.addVehiculo(v2);
 
+        fachada.asignarVehiculoAPropietario(propietario, v2);
         fachada.asignarVehiculoAPropietario(propietario, v1);
+
+        Vehiculo v3 = new Vehiculo("MNP1122", cat3, "Negra", "Yamaha", propietario2);
+        fachada.addVehiculo(v3);
+        fachada.asignarVehiculoAPropietario(propietario2, v3);
+
+        Vehiculo v4 = new Vehiculo("XYZ9988", cat1, "Gris", "Nissan", propietario2);
+        fachada.addVehiculo(v4);
+        fachada.asignarVehiculoAPropietario(propietario2, v4);
 
         // ESTRATEGIAS
 
@@ -99,11 +112,70 @@ public class DatosDePrueba implements CommandLineRunner {
         PropietarioBonificacion pb = new PropietarioBonificacion(propietario, puesto, b2);
         PropietarioBonificacion pb1 = new PropietarioBonificacion(propietario, puesto2, b4);
 
-        fachada.agregarPropietarioBonificacion(propietario.getCedula(), puesto.getDireccion(), b2.getNombre());
-        fachada.agregarPropietarioBonificacion(propietario.getCedula(), puesto2.getDireccion(), b4.getNombre());
+        fachada.agregarPropietarioBonificacion(
+                propietario.getCedula(),
+                puesto.getDireccion(),
+                b2.getNombre());
 
-        fachada.emularTransito(puesto.getDireccion(), v1.getMatricula(), LocalDateTime.now().minusDays(10));
-        fachada.emularTransito(puesto.getDireccion(), v1.getMatricula(), LocalDateTime.now().minusDays(5));
+        fachada.agregarPropietarioBonificacion(
+                propietario.getCedula(),
+                puesto2.getDireccion(),
+                b4.getNombre());
+
+        fachada.agregarPropietarioBonificacion(
+                propietario2.getCedula(),
+                puesto2.getDireccion(),
+                b1.getNombre());
+
+        fachada.agregarPropietarioBonificacion(
+                propietario2.getCedula(),
+                puesto.getDireccion(),
+                b3.getNombre());
+
+        fachada.emularTransito(
+                puesto.getDireccion(),
+                v1.getMatricula(),
+                LocalDateTime.now().minusDays(10));
+
+        fachada.emularTransito(
+                puesto.getDireccion(),
+                v1.getMatricula(),
+                LocalDateTime.now().minusDays(5));
+
+        fachada.emularTransito(
+                puesto2.getDireccion(),
+                v1.getMatricula(),
+                LocalDateTime.now().minusDays(3));
+
+        fachada.emularTransito(
+                puesto.getDireccion(),
+                v2.getMatricula(),
+                LocalDateTime.now().minusHours(10));
+
+        fachada.emularTransito(
+                puesto2.getDireccion(),
+                v2.getMatricula(),
+                LocalDateTime.now().minusHours(5));
+
+        fachada.emularTransito(
+                puesto.getDireccion(),
+                v3.getMatricula(),
+                LocalDateTime.now().minusDays(1));
+
+        fachada.emularTransito(
+                puesto2.getDireccion(),
+                v4.getMatricula(),
+                LocalDateTime.now().minusHours(2));
+
+        fachada.emularTransito(
+                puesto.getDireccion(),
+                v4.getMatricula(),
+                LocalDateTime.now().minusHours(1));
+
+        fachada.emularTransito(
+                puesto.getDireccion(),
+                v4.getMatricula(),
+                LocalDateTime.now().minusHours(2));
 
         System.out.println("--- PRECARGA FINALIZADA ---");
     }

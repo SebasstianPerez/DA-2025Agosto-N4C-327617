@@ -1,13 +1,13 @@
 package edu.ort.da.obligatorio.DTOs.Transito;
 
 
-import java.time.LocalDateTime;
-
 import lombok.Data;
 
 @Data
 public class TransitoDTO {
 	private String nombrePuesto;
+
+	private String nombrePropietario;
 
 	private String puestoDireccion;
 
@@ -23,7 +23,7 @@ public class TransitoDTO {
 
 	private double montoPagado;
 
-	private LocalDateTime fecha;
+	private String fecha;
 
 
 }
