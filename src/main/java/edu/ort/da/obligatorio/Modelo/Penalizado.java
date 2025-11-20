@@ -30,4 +30,10 @@ public class Penalizado extends EstadoPropietarioImpl {
     public boolean registranNotificaciones() {
         return false;
     }
+
+    @Override
+    public void manejarEntrada(Propietario propietario) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'manejarEntrada'");
+    }
 }

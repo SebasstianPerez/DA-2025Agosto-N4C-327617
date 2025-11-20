@@ -3,6 +3,8 @@ package edu.ort.da.obligatorio.Observador;
 import java.util.ArrayList;
 import java.util.List;
 
+import edu.ort.da.obligatorio.Excepciones.PeajeException;
+
 public class ObservableAbstracto implements Observable {
     private List<Observador> observadores = new ArrayList<>();
 
@@ -18,7 +20,7 @@ public class ObservableAbstracto implements Observable {
         observadores.remove(obs);
     }
 
-    public void avisar(Object evento) {
+    public void avisar(Object evento) throws PeajeException {
         List<Observador> copia = new ArrayList<>(observadores);
         for (Observador obs : copia) {
             obs.actualizar(evento, this);

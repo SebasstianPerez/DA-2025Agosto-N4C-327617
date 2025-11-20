@@ -19,6 +19,11 @@
             <header class="emulacion-header">
                 <h2>🚦 Emular tránsito</h2>
                 <p>Seleccione un puesto, verifique sus tarifas, ingrese una matrícula y emule un tránsito.</p>
+
+                <div class="dashboard-header">
+                    <h1>Tablero de control del propietario</h1>
+                    <a href="#" class="salir-link">Salir</a>
+                </div>
             </header>
 
             <div class="emulacion-card card">
@@ -139,6 +144,44 @@
                     </div>
                 </div>
             </div>
+
+            <section class="admin-card estado-propietario-section">
+                <div class="card-header">
+                    <h3 class="card-title">Cambiar estado de propietario</h3>
+                </div>
+
+                <div class="card-body">
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <label for="select-nuevo-estado">Estados definidos</label>
+                            <select id="select-nuevo-estado" class="input-field">
+                                <option value="" disabled selected>Seleccione nuevo estado</option>
+                                <option value="Activo">Activo</option>
+                                <option value="Deshabilitado">Deshabilitado</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label style="opacity:0;">Placeholder</label>
+                            <button id="btn-cambiar-estado" class="btn-primary" disabled>Cambiar estado</button>
+                        </div>
+                    </div>
+
+                    <hr>
+
+                    <div id="info-propietario-estado" class="propietario-info-box">
+                        <h4>Propietario</h4>
+                        <div class="info-line">
+                            <span class="info-label">Nombre:</span>
+                            <span id="prop-estado-nombre">...</span>
+                        </div>
+                        <div class="info-line">
+                            <span class="info-label">Estado actual:</span>
+                            <span id="prop-estado-actual">...</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
         </div>
 
         <footer class="footer-admin">
@@ -153,7 +196,9 @@
             let inputCedula;
             let selectPuesto;
             let selectBonificacion;
-            let btnAsignarBonificacion;
+            let selectNuevoEstado;
+            let btnCambiarEstado;
+            let selectPuestoEmular;
 
             // --- FUNCIÓN AUXILIAR DE PINTADO DE TARIFAS ---
             function mostrar_tarifasPuesto(tarifas) {
@@ -164,7 +209,6 @@
                     return;
                 }
 
-                // Se asume que 'crearTablaDesdeJson' existe en utilesVista.js
                 const htmlTabla = crearTablaDesdeJson(tarifas);
 
                 contenedorTabla.innerHTML = `
@@ -180,7 +224,7 @@
 
             function mostrar_puestos(puestos) {
                 puestosConTarifas = puestos;
-                const selectPuestoEmular = document.getElementById('puesto');
+                selectPuestoEmular = document.getElementById('puesto');
                 const selectPuestoAsignacion = document.getElementById('puestos-select');
 
                 // 1. Limpiar opciones previas
@@ -191,33 +235,26 @@
                 // 2. Llenar AMBOS selects con los puestos
                 puestosConTarifas.forEach(puesto => {
 
-                    // El 'nombre' es el identificador único (ej: "Accesos-101") que usa el backend.
                     const claveUnica = puesto.direccion;
-
-                    // El texto visible puede ser el 'nombre' o la 'direccion' descriptiva.
                     const textoVisible = puesto.nombre + ' (' + puesto.direccion + ')';
 
                     if (claveUnica) {
                         const option = document.createElement('option');
 
-                        // ✅ CORRECCIÓN CLAVE: El valor enviado al backend
                         option.value = claveUnica;
                         option.textContent = textoVisible;
 
                         console.log(`✅ Agregando puesto al select (Valor: ${option.value} | Texto: ${option.textContent})`);
 
-                        // Llenar ambos selects
                         selectPuestoEmular.appendChild(option.cloneNode(true));
                         selectPuestoAsignacion.appendChild(option);
                     }
                 });
 
-                // 3. Inicializar el primer puesto y mostrar tarifas
                 if (puestosConTarifas.length > 0) {
                     const primerPuesto = puestosConTarifas[0];
 
-                    // Usamos la clave única para setear el valor inicial
-                    selectPuestoEmular.value = primerPuesto.nombre;
+                    selectPuestoEmular.value = primerPuesto.direccion;
 
                     mostrar_tarifasPuesto(primerPuesto.tarifas);
                 }
@@ -253,54 +290,114 @@
                 contenedorTabla.prepend(h4Title);
 
                 // Opcional: Mostrar un mensaje de éxito
+                actualizar_todos_los_modulos(data);
                 mostrar_mensajeExito(`Propietario ${data.nombre} encontrado correctamente.`);
             }
 
-            // --- FUNCIÓN LLAMADA AUTOMÁTICAMENTE POR EL SISTEMA ---
-            /**
-             * Se llama automáticamente al recibir la clave "bonificaciones".
-             * @param {Array<String>} bonificaciones - Lista de nombres de bonificaciones (strings).
-             */
+            function mostrar_estados(estados) {
+                const selectEstados = document.getElementById('select-nuevo-estado');
+
+                // 1. Limpiar opciones previas
+                selectEstados.innerHTML = '<option value="" disabled selected>Seleccione nuevo estado</option>';
+
+                if (!estados || estados.length === 0) {
+                    console.warn("No se recibieron estados del propietario desde el backend.");
+                    mostrarMensaje("No se pudieron cargar los estados disponibles.", 'error');
+                    return;
+                }
+
+                // 2. Llenar el select con los estados recibidos
+                estados.forEach(estado => {
+                    if (estado && typeof estado === 'string' && estado.trim().length > 0) {
+                        const option = document.createElement('option');
+                        option.value = estado;
+                        option.textContent = estado;
+                        selectEstados.appendChild(option);
+                    }
+                });
+
+                console.log(`✅ ${estados.length} estados cargados correctamente en el select.`);
+            }
+
+            function mostrar_estado_propietario(data) {
+                const propNombre = document.getElementById('prop-estado-nombre');
+                const propEstado = document.getElementById('prop-estado-actual');
+
+                if (!data || data.length === 0) {
+                    mostrarMensaje('Propietario no encontrado o datos incompletos.', 'error');
+                    propNombre.textContent = '...';
+                    propEstado.textContent = '...';
+                    btnCambiarEstado.disabled = true;
+                    return;
+                }
+
+                // Asumimos que data es el objeto del propietario, si el backend retorna un array de un elemento, usamos data[0]
+                const propietario = Array.isArray(data) ? data[0] : data;
+
+                if (!propietario.nombre || !propietario.estado) {
+                    mostrarMensaje('Datos del propietario incompletos.', 'error');
+                    btnCambiarEstado.disabled = true;
+                    return;
+                }
+
+                // 1. Actualizar la interfaz con los datos
+                propNombre.textContent = propietario.nombre;
+                propEstado.textContent = propietario.estado; // Mostrar el estado actual
+
+                // 2. Pre-seleccionar el estado actual en el select
+                selectNuevoEstado.value = propietario.estado;
+
+                // 3. Habilitar el botón de acción
+                btnCambiarEstado.disabled = false;
+
+                mostrarMensaje(`Propietario ${propietario.nombre} cargado. Estado actual: ${propietario.estado}`, 'success');
+            }
+
             function mostrar_bonificaciones(bonificaciones) {
                 const selectBonificaciones = document.getElementById('bonificaciones-select');
 
-                console.log("Bonificaciones recibidas (ARRAY DE STRINGS):", bonificaciones);
-
-                // 1. Limpiar select
                 selectBonificaciones.innerHTML = '<option value="" disabled selected>Seleccione una bonificación</option>';
 
-                // 2. Llenar el select con los nombres de las bonificaciones
                 bonificaciones.forEach(nombre => {
+                    const option = document.createElement('option');
 
-                    // La variable 'nombre' ya contiene el string de la bonificación
-                    // Verificación clave: Asegurarse de que el string exista y no sea 'Null' o vacío
-                    if (nombre && typeof nombre === 'string' && nombre.trim().length > 0) {
+                    option.value = nombre;
+                    option.textContent = nombre;
 
-                        console.log("Agregando bonificación al select:", nombre);
-                        const option = document.createElement('option');
+                    selectBonificaciones.appendChild(option);
 
-                        // Usamos la variable 'nombre' directamente para el valor y el texto
-                        option.value = nombre;
-                        option.textContent = nombre;
-
-                        selectBonificaciones.appendChild(option);
-                    } else {
-                        console.log("Bonificación ignorada ('Null' o vacía):", nombre);
-                    }
                 });
             }
 
             document.addEventListener("DOMContentLoaded", function () {
-                // Asegúrate de iniciar la vista al cargar la página si aún no lo haces
-                // La función 'submit' debe ser llamada aquí o al inicio de la página
-                // para traer los datos. (ejemplo: submit(urlIniciarVista); )
+                inputCedulaEstado = document.getElementById('input-cedula-estado');
+                selectNuevoEstado = document.getElementById('select-nuevo-estado');
+                btnCambiarEstado = document.getElementById('btn-cambiar-estado');
+
+                submit('/usuario/getStates', null, 'GET');
+
+                btnCambiarEstado.disabled = true;
+
+                btnCambiarEstado.addEventListener('click', function () {
+                    const cedula = inputCedula.value;
+                    const nombreEstado = selectNuevoEstado.value;
+
+                    if (!nombreEstado) {
+                        mostrarMensaje('Seleccione el nuevo estado.', 'warning');
+                        return;
+                    }
+
+                    const url = '/usuario/changeState';
+                    const parametros = `cedula=${encodeURIComponent(cedula)}&nombreEstado=${encodeURIComponent(nombreEstado)}`;
+
+                    submit(url, parametros, 'POST', mostrar_estado_propietario);
+                });
 
 
 
                 const btnBuscarPropietario = document.getElementById('btn-buscar-propietario');
                 inputCedula = document.getElementById('cedula-input');
 
-                // C) MANEJO DEL BOTÓN DE BUSCAR PROPIETARIO
                 btnBuscarPropietario.addEventListener('click', function () {
                     const cedula = inputCedula.value;
 
@@ -309,7 +406,6 @@
                         return;
                     }
 
-                    // Asumiendo que tu sistema usa 'submit' para llamadas POST
                     const parametros = `cedula=${encodeURIComponent(cedula)}`;
                     submit('/usuario/obtenerUsuario', parametros, 'POST');
                 });
@@ -317,7 +413,6 @@
                 selectPuesto = document.getElementById('puestos-select');
                 const btnEmular = document.getElementById('btn-emular-transito');
 
-                // A) MANEJO DEL CAMBIO DE PUESTO (ACTUALIZAR TARIFAS)
                 selectPuesto.addEventListener('change', function () {
                     const puestoDireccion = this.value;
                     const puestoSeleccionado = puestosConTarifas.find(p => p.direccion === puestoDireccion);
@@ -330,15 +425,13 @@
                 });
 
                 btnAsignarBonificacion = document.getElementById('btn-asignar-bonificacion');
-                selectBonificacion = document.getElementById('bonificaciones-select'); // Select de bonificaciones definidas
+                selectBonificacion = document.getElementById('bonificaciones-select');
 
                 btnAsignarBonificacion.addEventListener('click', function () {
-                    // 1. Obtener valores
                     const cedula = inputCedula.value;
                     const puestoDireccion = selectPuesto.value;
                     const bonificacionNombre = selectBonificacion.value;
 
-                    // 2. Validaciones
                     if (!cedula || cedula.trim() === '') {
                         mostrarMensaje("Debe buscar un propietario e ingresar su cédula.", 'warning');
                         return;
@@ -352,24 +445,18 @@
                         return;
                     }
 
-                    // 3. Preparar parámetros
                     const parametros =
                         `puestoDireccion=${encodeURIComponent(puestoDireccion)}` +
                         `&bonificacionNombre=${encodeURIComponent(bonificacionNombre)}` +
                         `&cedula=${encodeURIComponent(cedula)}`;
 
-                    // console.log("Asignando bonificación con parámetros:", parametros);
-
                     const url = '/usuario/asignarBonificacion';
 
-                    // 4. Llamar al backend usando la función 'submit'
-                    // El resultado de esta llamada lo procesará la función de callback 'mostrar_exito' o 'mostrar_error'.
                     submit(url, parametros, 'POST');
                 });
 
-                // B) MANEJO DEL BOTÓN DE EMULACIÓN (SUBMIT)
                 btnEmular.addEventListener('click', function () {
-                    const puestoDireccion = selectPuesto.value;
+                    const puestoDireccion = selectPuestoEmular.value;
                     const matricula = document.getElementById('matricula').value;
                     const fechaHora = document.getElementById('fechaHora').value;
 
@@ -387,24 +474,67 @@
                 });
             });
 
+            function actualizar_todos_los_modulos(data) {
+                if (!data || data.length === 0 || data.error) {
+                    mostrar_error("Propietario no encontrado o error en la búsqueda.");
+                    actualizar_modulo_asignacion({});
+                    actualizar_modulo_estado({});
+                    return;
+                }
+
+                actualizar_modulo_asignacion(data);
+                actualizar_modulo_estado(data);
+            }
+
+            function actualizar_modulo_asignacion(data) {
+                const propietario = Array.isArray(data) ? data[0] : data;
+
+                if (!propietario || !propietario.nombre || !propietario.estado) {
+                    document.getElementById('prop-asignacion-nombre').textContent = '...';
+                    document.getElementById('prop-asignacion-estado').textContent = '...';
+                    return;
+                }
+
+                document.getElementById('prop-asignacion-nombre').textContent = propietario.nombre;
+                document.getElementById('prop-asignacion-estado').textContent = propietario.estado;
+
+                // ...
+                mostrar_mensajeExito(`Propietario ${propietario.nombre} cargado en Asignación.`);
+            }
+
+            function actualizar_modulo_estado(data) {
+                const propietario = Array.isArray(data) ? data[0] : data;
+                const propNombre = document.getElementById('prop-estado-nombre');
+                const propEstado = document.getElementById('prop-estado-actual');
+
+                if (!propietario || !propietario.nombre || !propietario.estado) {
+                    propNombre.textContent = '...';
+                    propEstado.textContent = '...';
+                    btnCambiarEstado.disabled = true;
+                    return;
+                }
+
+                propNombre.textContent = propietario.nombre;
+                propEstado.textContent = propietario.estado;
+                selectNuevoEstado.value = propietario.estado;
+                btnCambiarEstado.disabled = false;
+            }
+
             function mostrar_exito(mensaje) {
-                // El mensaje 'mensaje' vendrá como 'null' en este caso, por lo que usamos uno predeterminado
                 const mensajeFinal = mensaje || "Bonificación asignada con éxito.";
 
-                // 1. Mostrar mensaje de éxito
                 mostrarMensaje(mensajeFinal, 'success');
 
-                // 2. Re-consultar los datos del propietario para actualizar la tabla de bonificaciones asignadas
-                // Esto asegura que la tabla refleje el cambio inmediatamente.
                 const cedula = inputCedula.value;
                 const parametros = `cedula=${encodeURIComponent(cedula)}`;
                 submit('/usuario/obtenerUsuario', parametros, 'POST');
             }
 
-            // --- FUNCIONES DE RESULTADO DE EMULACIÓN (Mantenidas) ---
             function mostrar_resultadoEmulacion(data) {
                 document.getElementById('prop-nombre').textContent = data.propietarioNombre;
                 document.getElementById('prop-estado').textContent = data.propietarioEstado;
+                document.getElementById('prop-estado-nombre').textContent = data.propietarioNombre;
+                document.getElementById('prop-estado-actual').textContent = data.propietarioEstado;
                 document.getElementById('transito-categoria').textContent = data.categoria;
                 document.getElementById('transito-bonificacion').textContent = data.bonificacionNombre || 'Ninguna';
 
@@ -418,6 +548,20 @@
 
             function mostrar_mensajeExito(mensaje) {
                 mostrarMensaje(mensaje, 'success');
+            }
+
+            document.addEventListener('DOMContentLoaded', function () {
+                const salirLink = document.querySelector('.salir-link');
+                if (salirLink) {
+                    salirLink.addEventListener('click', function (e) {
+                        e.preventDefault();
+                        submit('/auth/logout', '');
+                    });
+                }
+            });
+
+            function mostrar_usuarioNoAutenticado(url) {
+                window.location.href = url;
             }
 
         </script>

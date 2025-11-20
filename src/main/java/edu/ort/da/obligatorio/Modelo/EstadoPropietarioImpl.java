@@ -1,5 +1,7 @@
 package edu.ort.da.obligatorio.Modelo;
 
+import edu.ort.da.obligatorio.Excepciones.PeajeException;
+
 public abstract class EstadoPropietarioImpl implements EstadoPropietario {
 
     @Override
@@ -33,35 +35,31 @@ public abstract class EstadoPropietarioImpl implements EstadoPropietario {
     }
 
     @Override
-    public void habilitar(Propietario propietario) {
+    public void habilitar(Propietario propietario) throws PeajeException {
         ejecutarTransicion(propietario, getDestinoHabilitado());
     }
 
     @Override
-    public void penalizar(Propietario propietario) {
+    public void penalizar(Propietario propietario) throws PeajeException {
         ejecutarTransicion(propietario, getDestinoPenalizado());
     }
 
     @Override
-    public void deshabilitar(Propietario propietario) {
+    public void deshabilitar(Propietario propietario) throws PeajeException {
         ejecutarTransicion(propietario, getDestinoDeshabilitado());
     }
 
     @Override
-    public void suspender(Propietario propietario) {
+    public void suspender(Propietario propietario) throws PeajeException {
         ejecutarTransicion(propietario, getDestinoSuspendido());
     }
 
-    private void ejecutarTransicion(Propietario propietario, EstadoPropietario siguienteEstado) {
-        // El hook por defecto devuelve 'this'. Si no es el estado actual, cambiamos.
+    private void ejecutarTransicion(Propietario propietario, EstadoPropietario siguienteEstado) throws PeajeException {
         if (siguienteEstado != this) {
-            System.out.println("Transición: " + this.getClass().getSimpleName() + " -> "
-                    + siguienteEstado.getClass().getSimpleName());
             propietario.setEstado(siguienteEstado);
+            siguienteEstado.manejarEntrada(propietario);
         } else {
-            // Este es el comportamiento por defecto si la transición no está sobrescrita
-            // por el hijo.
-            System.out.println("ADVERTENCIA: Transición no permitida desde " + this.getClass().getSimpleName());
+            throw new PeajeException("Transición no permitida desde el estado " + this.getClass().getSimpleName());
         }
     }
 

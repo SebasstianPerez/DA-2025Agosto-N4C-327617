@@ -1,12 +1,11 @@
 package edu.ort.da.obligatorio.Controladores;
 
-import javax.security.auth.login.LoginException;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import edu.ort.da.obligatorio.DTOs.Usuario.LoginDTO;
+import edu.ort.da.obligatorio.Excepciones.PeajeException;
 import edu.ort.da.obligatorio.Modelo.Usuario;
 import edu.ort.da.obligatorio.Servicios.Fachada;
 import jakarta.servlet.http.HttpSession;
@@ -24,7 +23,6 @@ public class LoginControllerAdmin extends LoginControllerAbstracto {
 
     @Override
     protected void guardarEstadoUsuario(HttpSession sesion, Usuario usuario) {
-        //guardar sesion?
         return;
     }
 
@@ -34,7 +32,7 @@ public class LoginControllerAdmin extends LoginControllerAbstracto {
     }
 
     @Override
-    protected Usuario getUsuario(LoginDTO dto) throws LoginException {
+    protected Usuario getUsuario(LoginDTO dto) throws PeajeException {
         return fachada.loginAdministrador(dto);
     }
 }

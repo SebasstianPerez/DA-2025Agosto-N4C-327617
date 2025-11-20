@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
+import edu.ort.da.obligatorio.Excepciones.PeajeException;
 import edu.ort.da.obligatorio.Modelo.Propietario;
 import edu.ort.da.obligatorio.Modelo.PropietarioBonificacion;
 import edu.ort.da.obligatorio.Modelo.Puesto;
@@ -39,10 +40,6 @@ public class SistemaTransito {
 		return puestos;
 	}
 
-	public double calcularPrecioTransito(String puesto, String matricula) {
-		return 0;
-	}
-
 	public static synchronized Long getnextPuestoId() {
 		return nextPuestoId++;
 	}
@@ -67,10 +64,10 @@ public class SistemaTransito {
 				.orElse(null);
 	}
 
-	public void asignarBonificacion(PropietarioBonificacion pb) {
+	public void asignarBonificacion(PropietarioBonificacion pb) throws PeajeException {
 		Puesto puesto = pb.getPuesto();
 		if (puesto == null) {
-			throw new RuntimeException("Puesto no puede ser nulo al asignar bonificación");
+			throw new PeajeException("Puesto no puede ser nulo al asignar bonificación");
 		}
 
 		pb.getPuesto().addPropietarioBonificacion(pb);
@@ -93,7 +90,12 @@ public class SistemaTransito {
 		return Long.valueOf(size);
 	}
 
-	public void emularTransito(String puestoDireccion, Vehiculo vehiculo, Propietario propietario) {
+	public void emularTransito(String puestoDireccion, Vehiculo vehiculo, Propietario propietario, LocalDateTime fechaHora) throws PeajeException {
+
+		if(!propietario.getEstado().puedeRealizarTransitos()){
+			throw new PeajeException("El propietario se encuentra bloqueado y no puede realizar transitos.");
+		}
+
 		Puesto puesto = getPuestoByDireccion(puestoDireccion);
 		Tarifa tarifa = puesto.getTarifaParaCategoria(vehiculo.getCategoria());
 
@@ -105,7 +107,7 @@ public class SistemaTransito {
 		ResultadoCalculoTransito resultado = propietario.calcularMontoNetoAPagar(
 				montoBase,
 				puesto,
-				LocalDateTime.now(),
+				fechaHora,
 				Long.valueOf(getCantidadTransitosHoy(propietario.getCedula())));
 
 		double montoNetoAPagar = resultado.getMontoAPagar();
@@ -113,11 +115,7 @@ public class SistemaTransito {
 		double montoDescuento = montoBase - montoNetoAPagar;
 
 		Transito transito = new Transito(vehiculo, puesto, propietario.getCedula(), montoBase, montoNetoAPagar,
-				montoDescuento, resultado.getBonificacion());
-
-		if (propietario.getSaldo() < montoNetoAPagar) {
-			throw new RuntimeException("Saldo insuficiente para peaje. Monto requerido: " + montoNetoAPagar);
-		}
+				montoDescuento, resultado.getBonificacion(), fechaHora);
 
 		propietario.cobrarTransito(montoNetoAPagar);
 		propietario.agregarTransito(transito);

@@ -31,4 +31,9 @@ public class Deshabilitado extends EstadoPropietarioImpl {
         return false;
     }
 
+    public void manejarEntrada(Propietario propietario) {
+        // Lógica específica al entrar en el estado Deshabilitado
+        System.out.println("El propietario " + propietario.getNombre() + " ha sido deshabilitado y no puede ingresar al sistema.");
+    }
+
 }

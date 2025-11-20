@@ -9,7 +9,7 @@ public class Transito {
 
 	private Long Id;
 
-	private LocalDateTime fecha = LocalDateTime.now();
+	private LocalDateTime fecha;
 
 	private Vehiculo vehiculo;
 
@@ -26,7 +26,7 @@ public class Transito {
 	private double montoPagado;
 
 	public Transito(Vehiculo vehiculo, Puesto puesto, String cedula, double montoTarifaBase,
-			double montoPagado, double montoBonificacion, PropietarioBonificacion propietarioBonificacion) {
+			double montoPagado, double montoBonificacion, PropietarioBonificacion propietarioBonificacion, LocalDateTime fecha) {
 		this.fecha = LocalDateTime.now();
 		this.vehiculo = vehiculo;
 		this.puesto = puesto;
@@ -35,6 +35,7 @@ public class Transito {
 		this.montoPagado = montoPagado;
 		this.montoBonificacion = montoBonificacion;
 		this.propietarioBonificacion = propietarioBonificacion;
+		this.fecha = fecha;
 	}
 
 }

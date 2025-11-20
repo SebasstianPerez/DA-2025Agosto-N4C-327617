@@ -25,5 +25,11 @@ public class Habilitado extends EstadoPropietarioImpl {
         return Deshabilitado.getInstancia();
     }
 
+    @Override
+    public void manejarEntrada(Propietario propietario) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'manejarEntrada'");
+    }
+
 
 }

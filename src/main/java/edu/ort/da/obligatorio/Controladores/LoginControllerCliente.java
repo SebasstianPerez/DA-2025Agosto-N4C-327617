@@ -6,6 +6,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import edu.ort.da.obligatorio.DTOs.Usuario.LoginDTO;
+import edu.ort.da.obligatorio.Excepciones.PeajeException;
+import edu.ort.da.obligatorio.Modelo.Propietario;
 import edu.ort.da.obligatorio.Modelo.Usuario;
 import edu.ort.da.obligatorio.Servicios.Fachada;
 import jakarta.servlet.http.HttpSession;
@@ -32,7 +34,13 @@ public class LoginControllerCliente extends LoginControllerAbstracto {
     }
 
     @Override
-    protected Usuario getUsuario(LoginDTO dto) {
-        return fachada.getPropietario(dto.getCedula());
+    protected Usuario getUsuario(LoginDTO dto) throws PeajeException {
+        Propietario propietario = fachada.getPropietario(dto.getCedula());
+
+        if (!propietario.puedeIngresar()) {
+            throw new PeajeException("El propietario se encuentra bloqueado y no puede ingresar al sistema.");
+        }
+
+        return propietario;
     }
 }

@@ -1,5 +1,6 @@
 package edu.ort.da.obligatorio;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -101,8 +102,8 @@ public class DatosDePrueba implements CommandLineRunner {
         fachada.agregarPropietarioBonificacion(propietario.getCedula(), puesto.getDireccion(), b2.getNombre());
         fachada.agregarPropietarioBonificacion(propietario.getCedula(), puesto2.getDireccion(), b4.getNombre());
 
-        fachada.emularTransito(puesto.getDireccion(), v1.getMatricula());
-        fachada.emularTransito(puesto.getDireccion(), v1.getMatricula());
+        fachada.emularTransito(puesto.getDireccion(), v1.getMatricula(), LocalDateTime.now().minusDays(10));
+        fachada.emularTransito(puesto.getDireccion(), v1.getMatricula(), LocalDateTime.now().minusDays(5));
 
         System.out.println("--- PRECARGA FINALIZADA ---");
     }

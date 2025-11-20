@@ -25,4 +25,10 @@ public class Suspendido extends EstadoPropietarioImpl {
     public boolean puedeRealizarTransitos() {
         return false;
     }
+
+    @Override
+    public void manejarEntrada(Propietario propietario) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'manejarEntrada'");
+    }
 }

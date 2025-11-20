@@ -12,11 +12,13 @@ import org.springframework.web.bind.annotation.SessionAttribute;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import edu.ort.da.obligatorio.DTOs.Usuario.PropietarioDashboardDTO;
+import edu.ort.da.obligatorio.Excepciones.PeajeException;
 import edu.ort.da.obligatorio.Modelo.Propietario;
 import edu.ort.da.obligatorio.Observador.ObservableAbstracto;
 import edu.ort.da.obligatorio.Observador.Observador;
 import edu.ort.da.obligatorio.Servicios.Fachada;
 import edu.ort.da.obligatorio.Utils.ConexionNavegador;
+import edu.ort.da.obligatorio.Utils.Respuesta;
 
 @RestController
 @RequestMapping("/dashboard")
@@ -43,27 +45,23 @@ public class DashboardPropietarioController implements Observador {
     }
 
     @GetMapping("/vistaConectada")
-    public List<Respuesta> inicializarVista(@SessionAttribute(name = "userId", required = false) Long userId) {
+    public List<Respuesta> inicializarVista(@SessionAttribute(name = "userId", required = false) Long userId)
+            throws PeajeException {
         if (userId == null) {
             return Respuesta.lista(new Respuesta("usuarioNoAutenticado", "login.html"));
         }
 
-        try {
-            this.userIdSesion = userId;
+        this.userIdSesion = userId;
 
-            PropietarioDashboardDTO dashboardData = fachada.getDashboardData(userId);
-            Propietario propietario = fachada.getPropietarioById(userId);
-            propietario.agregarObservador(this);
+        PropietarioDashboardDTO dashboardData = fachada.getDashboardData(userId);
+        Propietario propietario = fachada.getPropietarioById(userId);
+        propietario.agregarObservador(this);
 
-            return Respuesta.lista(new Respuesta("datos", dashboardData));
-        } catch (Exception e) {
-            return Respuesta.lista(new Respuesta("error", e.getMessage()));
-        }
+        return Respuesta.lista(new Respuesta("datos", dashboardData));
     }
 
     @Override
-    public void actualizar(Object evento, ObservableAbstracto origen) {
-        System.out.println("DashboardPropietarioController - actualizar llamado con evento: " + evento);
+    public void actualizar(Object evento, ObservableAbstracto origen) throws PeajeException {
         if (evento instanceof Propietario.Eventos) {
 
             if (this.userIdSesion == null) {
@@ -71,17 +69,13 @@ public class DashboardPropietarioController implements Observador {
                 return;
             }
 
-            try {
-                PropietarioDashboardDTO dashboardDataActualizada = fachada.getDashboardData(this.userIdSesion);
+            PropietarioDashboardDTO dashboardDataActualizada = fachada.getDashboardData(this.userIdSesion);
 
-                Respuesta respuestaActualizacion = new Respuesta("datos", dashboardDataActualizada);
+            Respuesta respuestaActualizacion = new Respuesta("datos", dashboardDataActualizada);
 
-                System.out.println("Respuesta: " + respuestaActualizacion);
-                conexionNavegador.enviarJSON(Respuesta.lista(respuestaActualizacion));
+            System.out.println("Respuesta: " + respuestaActualizacion);
+            conexionNavegador.enviarJSON(Respuesta.lista(respuestaActualizacion));
 
-            } catch (Exception e) {
-                System.err.println("error: " + e.getMessage());
-            }
         }
     }
 }

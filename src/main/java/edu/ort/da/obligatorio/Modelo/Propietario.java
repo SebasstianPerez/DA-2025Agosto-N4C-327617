@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import edu.ort.da.obligatorio.Excepciones.PeajeException;
 import edu.ort.da.obligatorio.Observador.Observable;
 import edu.ort.da.obligatorio.Observador.ObservableAbstracto;
 import edu.ort.da.obligatorio.Observador.ObservableConcreto;
@@ -48,10 +49,9 @@ public class Propietario extends Usuario implements Observable {
         CAMBIO_ESTADO,
         NUEVO_TRANSITO,
         BONIFICACION_ASIGNADA,
-        NUEVO_VEHICULO
+        NUEVO_VEHICULO,
+        NOTIFICACION_ELIMINADA
     }
-
-
 
     public Propietario(String cedulaDeIdentidad, String contrasena, String nombre, String apellido, double saldo) {
 
@@ -69,7 +69,8 @@ public class Propietario extends Usuario implements Observable {
         return null;
     }
 
-    public ResultadoCalculoTransito calcularMontoNetoAPagar(double montoBase, Puesto puesto, LocalDateTime fechaTransito,
+    public ResultadoCalculoTransito calcularMontoNetoAPagar(double montoBase, Puesto puesto,
+            LocalDateTime fechaTransito,
             Long transitosPreviosHoy) {
 
         PropietarioBonificacion bonificacionActiva = this.bonificaciones.stream()
@@ -79,43 +80,44 @@ public class Propietario extends Usuario implements Observable {
 
         double montoNetoAPagar = montoBase;
 
-        if (bonificacionActiva != null) {
+        if (bonificacionActiva != null && estado.aplicanBonificaciones()) {
             montoNetoAPagar = bonificacionActiva.getBonificacion().calcularDescuento(
                     fechaTransito,
                     montoBase,
                     transitosPreviosHoy);
         }
 
-        ResultadoCalculoTransito resultado = new ResultadoCalculoTransito(Math.max(0.0, montoNetoAPagar), bonificacionActiva);
+        ResultadoCalculoTransito resultado = new ResultadoCalculoTransito(Math.max(0.0, montoNetoAPagar),
+                bonificacionActiva);
 
         return resultado;
     }
 
-    public boolean cobrarTransito(double monto) {
+    public boolean cobrarTransito(double monto) throws PeajeException {
         if (monto > this.saldo) {
-            return false;
+            throw new PeajeException("Saldo insuficiente para peaje. Monto requerido: " + monto);
         }
 
         this.setSaldo(saldo - monto);
         return true;
     }
 
-    public void agregarBonificacion(PropietarioBonificacion bonificacion) {
+    public void agregarBonificacion(PropietarioBonificacion bonificacion) throws PeajeException {
         this.bonificaciones.add(bonificacion);
         observable.avisar(Eventos.BONIFICACION_ASIGNADA);
     }
 
-    public void addVehiculo(Vehiculo vehiculo) {
+    public void addVehiculo(Vehiculo vehiculo) throws PeajeException {
         this.vehiculos.add(vehiculo);
         observable.avisar(Eventos.NUEVO_VEHICULO);
     }
 
-    public void agregarNotificacion(Notificacion notificacion) {
+    public void agregarNotificacion(Notificacion notificacion) throws PeajeException {
         this.notificaciones.add(notificacion);
         observable.avisar(Eventos.NUEVA_NOTIFICACION);
     }
 
-    public void agregarTransito(Transito transito) {
+    public void agregarTransito(Transito transito) throws PeajeException {
         this.transitos.add(transito);
         observable.avisar(Eventos.NUEVO_TRANSITO);
     }
@@ -124,28 +126,44 @@ public class Propietario extends Usuario implements Observable {
         return estado.puedeIngresarAlSistema();
     }
 
-    public void cambiarEstado(EstadoPropietario estadoDestinoInstancia) {
-        String nuevoEstado = estadoDestinoInstancia.getNombreEstado();
+    public void setEstado(EstadoPropietario nuevoEstado) throws PeajeException {
+        this.estado = nuevoEstado;
 
-        switch (nuevoEstado) {
-            case "Habilitado" -> this.estado.habilitar(this);
-            case "Penalizado" -> this.estado.penalizar(this);
-            case "Suspendido" -> this.estado.suspender(this);
-            case "Deshabilitado" -> this.estado.deshabilitar(this);
-            default -> throw new IllegalArgumentException("Destino de estado inválido.");
-        }
-
+        this.agregarNotificacion(new Notificacion(
+                "Cambio de estado",
+                "Se ha cambiado tu estado en el sistema. Tu estado actual es " + nuevoEstado.getNombreEstado()));
+                
         observable.avisar(Eventos.CAMBIO_ESTADO);
+    }
+
+    public void habilitar() throws PeajeException {
+        this.estado.habilitar(this);
+    }
+
+    public void penalizar() throws PeajeException {
+        this.estado.penalizar(this);
+    }
+
+    public void deshabilitar() throws PeajeException {
+        this.estado.deshabilitar(this);
+    }
+
+    public void suspender() throws PeajeException {
+        this.estado.suspender(this);
     }
 
     @Override
     public void agregarObservador(Observador obs) {
         observable.agregarObservador(obs);
-        System.out.println("Observador agregado: " + observable.toString());
     }
 
     @Override
     public void quitarObservador(Observador obs) {
         observable.quitarObservador(obs);
+    }
+
+    public void limpiarNotificaciones() throws PeajeException {
+        this.notificaciones.clear();
+        observable.avisar(Eventos.NOTIFICACION_ELIMINADA);
     }
 }

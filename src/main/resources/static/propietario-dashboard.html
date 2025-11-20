@@ -77,18 +77,12 @@
 
     <script>
         urlIniciarVista = '/dashboard/vistaConectada';
-        // urlCierreVista = "/acceso/logoutAgenda";
-        urlRegistroSSE = "/dashboard/registrarSSE"; // Al cargarse el menu propietario se registra el SSE
+        urlCierreVista = "/auth/logout";
+        urlRegistroSSE = "/dashboard/registrarSSE";
 
-        // --- FUNCIÓN PRINCIPAL DE CARGA Y ACTUALIZACIÓN ---
-        /**
-         * Función que recibe el array de Respuesta del servidor y extrae el DTO del Dashboard.
-         * Esta función se usa tanto para la carga inicial como para las actualizaciones SSE.
-         */
+
+
         function mostrar_datos(data) {
-            // 1. EXTRAER el DTO del Dashboard
-            console.log("Datos recibidos en mostrar_datos:", data);
-
             const {
                 estado,
                 nombre,
@@ -96,24 +90,17 @@
                 bonificaciones,
                 vehiculos,
                 transitos,
-                notificaciones // Asumimos que también recibes notificaciones
+                notificaciones
             } = data;
 
-            // 3. ACTIVAR todas las funciones de pintado:
             mostrar_resumen(estado, nombre, saldoActual);
             mostrar_bonificaciones(bonificaciones);
             mostrar_vehiculos(vehiculos);
             mostrar_transitos(transitos);
-            // Asumimos una nueva función para notificaciones
             mostrar_notificaciones(notificaciones);
-
-            // NOTA: Se eliminó el uso de 'divTablaDashboard' ya que el nuevo HTML usa IDs específicos.
         }
 
-        // ----------------------------------------------------------------------
-
         function mostrar_resumen(estado, nombre, saldoActual) {
-            // Formatear el saldo a moneda (ej: $ 960.00) si es un número
             const saldoFormateado = (typeof saldoActual === 'number') ? `$ ${saldoActual.toFixed(2)}` : saldoActual;
 
             document.getElementById('nombre-completo').textContent = nombre;
@@ -137,7 +124,6 @@
                 contenedor.innerHTML = '<p>No hay vehículos registrados.</p>';
                 return;
             }
-            // Mantenemos la función de clic para mostrar detalles
             const htmlTabla = crearTablaDesdeJson(data, (indice, objeto) => {
                 mostrarMensaje(`Detalles del vehículo: ${objeto.matricula} (${objeto.modelo})`);
             });
@@ -154,22 +140,11 @@
             contenedor.innerHTML = htmlTabla;
         }
 
-        // ----------------------------------------------------------------------
-        // --- NUEVAS FUNCIONES PARA COMPLETAR EL DASHBOARD ---
-        // ----------------------------------------------------------------------
-
-        /**
-         * Función que maneja la visualización de notificaciones.
-         * Aquí podrías inyectar el HTML para las notificaciones.
-         */
         function mostrar_notificaciones(data) {
-            // Necesitas un div con ID para inyectar las notificaciones, 
-            // asumiremos que hay un contenedor adecuado dentro de .notifications-section.
             const contenedor = document.querySelector('.notifications-section');
             if (!contenedor || !data) return;
 
             if (data.length > 0) {
-                // Ejemplo de inyección simple. Puedes usar crearTablaDesdeJson(data) si son muchos campos.
                 const notifHTML = data.map(n => `<p class="notification-item">${n.fecha}: ${n.mensaje}</p>`).join('');
                 contenedor.innerHTML = notifHTML + contenedor.querySelector('button')?.outerHTML || '';
             } else {
@@ -177,17 +152,35 @@
             }
         }
 
-        // Manejo del botón de salir
-        document.addEventListener('DOMContentLoaded', function () {
+
+        document.addEventListener('DOMContentLoaded', ejecutarCodigoDocumentReady);
+
+        function ejecutarCodigoDocumentReady() {
             const salirLink = document.querySelector('.salir-link');
             if (salirLink) {
                 salirLink.addEventListener('click', function (e) {
                     e.preventDefault();
-                    // Envía una petición para cerrar la sesión y redirige al login
-                    submit('/logout', '', 'GET');
+                    submit('/auth/logout', '');
                 });
             }
-        });
+
+            const btnBorrar = document.getElementById('btn-borrar-notificaciones');
+
+            if (btnBorrar) {
+                btnBorrar.addEventListener('click', async function () {
+
+                    let respuesta = await mostrarConfirmacion("¿Está seguro que desea borrar todas las notificaciones?", "Sí", "No");
+                    if (respuesta) {
+                        submit('/usuario/borrarNotificaciones', '', 'GET');
+                    }
+
+                });
+            }
+        }
+
+        function mostrar_usuarioNoAutenticado(url) {
+            window.location.href = url;
+        }
 
         async function excepcionDeAplicacion(mensaje) {
             await mostrarMensaje(mensaje);

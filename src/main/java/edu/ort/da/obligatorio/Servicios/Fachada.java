@@ -1,9 +1,8 @@
 package edu.ort.da.obligatorio.Servicios;
 
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
-
-import javax.security.auth.login.LoginException;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -19,13 +18,13 @@ import edu.ort.da.obligatorio.DTOs.Usuario.LoginDTO;
 import edu.ort.da.obligatorio.DTOs.Usuario.NotificacionDTO;
 import edu.ort.da.obligatorio.DTOs.Usuario.PropietarioDashboardDTO;
 import edu.ort.da.obligatorio.DTOs.Vehiculo.VehiculoDTO;
+import edu.ort.da.obligatorio.Excepciones.PeajeException;
 import edu.ort.da.obligatorio.Modelo.Administrador;
 import edu.ort.da.obligatorio.Modelo.Bonificacion;
 import edu.ort.da.obligatorio.Modelo.CategoriaVehiculo;
 import edu.ort.da.obligatorio.Modelo.Propietario;
 import edu.ort.da.obligatorio.Modelo.PropietarioBonificacion;
 import edu.ort.da.obligatorio.Modelo.Puesto;
-import edu.ort.da.obligatorio.Modelo.Sesion;
 import edu.ort.da.obligatorio.Modelo.Vehiculo;
 
 @Service
@@ -44,15 +43,11 @@ public class Fachada {
         this.sistemaVehiculos = sistemaVehiculos;
     }
 
-    public TransitoDTO cobrarTransito(TransitoDTO transito) {
-        return null;
-    }
-
-    public void addPropietario(Propietario datos) {
+    public void addPropietario(Propietario datos) throws PeajeException {
         sistemaUsuarios.agregarPropietario(datos);
     }
 
-    public void addAdministrador(Administrador datos) {
+    public void addAdministrador(Administrador datos) throws PeajeException {
         sistemaUsuarios.agregarAdministrador(datos);
     }
 
@@ -68,11 +63,11 @@ public class Fachada {
         return sistemaUsuarios.getPropietario(cedula);
     }
 
-    public Propietario loginPropietario(LoginDTO datos) {
+    public Propietario loginPropietario(LoginDTO datos) throws PeajeException {
         return sistemaUsuarios.loginPropietario(datos);
     }
 
-    public Administrador loginAdministrador(LoginDTO datos) throws LoginException {
+    public Administrador loginAdministrador(LoginDTO datos) throws PeajeException {
         return sistemaUsuarios.loginAdministrador(datos);
     }
 
@@ -112,17 +107,12 @@ public class Fachada {
         sistemaUsuarios.addBonificacion(bonificacion);
     }
 
-    public void agregarPropietarioBonificacion(String cedula, String puestoDireccion, String bonificacionNombre) {
-        System.out.println("Fachada: Agregando bonificación '" + bonificacionNombre + "' para propietario '" + cedula
-                + "' en puesto '" + puestoDireccion + "'");
-        Propietario propietario = getPropietario(cedula);
-        Puesto puesto = getPuestoByDireccion(puestoDireccion);
-
-        // System.out.println("Fachada: Obtenido propietario: " + propietario+", puesto: " + puesto);
-        sistemaUsuarios.asignarBonificacion(propietario, puesto, bonificacionNombre);
+    public void agregarPropietarioBonificacion(String cedula, String puestoDireccion, String bonificacionNombre)
+            throws PeajeException {
+        sistemaUsuarios.asignarBonificacion(cedula, getPuestoByDireccion(puestoDireccion), bonificacionNombre);
     }
 
-    public void asignarVehiculoAPropietario(Propietario propietario, Vehiculo v1) {
+    public void asignarVehiculoAPropietario(Propietario propietario, Vehiculo v1) throws PeajeException {
         sistemaVehiculos.asignarVehiculoAPropietario(v1.getMatricula(), propietario);
     }
 
@@ -130,29 +120,17 @@ public class Fachada {
         sistemaVehiculos.agregarVehiculo(v1);
     }
 
-    public void emularTransito(String puestoDireccion, String matricula) {
-        ejecutarLogicaTransito(puestoDireccion, matricula);
-    }
-
-    public void emularTransitoApi(TransitoDTO transitoDTO) {
-        String puestoDireccion = transitoDTO.getPuestoDireccion();
-        String matricula = transitoDTO.getVehiculoMatricula();
-
-        ejecutarLogicaTransito(puestoDireccion, matricula);
-    }
-
-    public void ejecutarLogicaTransito(String puestoDireccion, String matricula) {
+    public void emularTransito(String puestoDireccion, String matricula, LocalDateTime fechaHora)
+            throws PeajeException {
         Vehiculo vehiculo = sistemaVehiculos.buscarVehiculoPorMatricula(matricula);
-        Propietario propietario = vehiculo.getPropietario();
-
-        sistemaTransito.emularTransito(puestoDireccion, vehiculo, propietario);
+        sistemaTransito.emularTransito(puestoDireccion, vehiculo, vehiculo.getPropietario(), fechaHora);
     }
 
     public List<String> obtenerEstadosPropietario() {
         return sistemaUsuarios.obtenerNombresDeTodosLosEstados();
     }
 
-    public void cambiarEstadoPropietario(String cedula, String nombreEstado) {
+    public void cambiarEstadoPropietario(String cedula, String nombreEstado) throws PeajeException {
         sistemaUsuarios.cambiarEstado(cedula, nombreEstado);
     }
 
@@ -171,7 +149,7 @@ public class Fachada {
         return dto;
     }
 
-    public void asignarBonificacionApi(BonificacionAsignadaDTO dto) {
+    public void asignarBonificacionApi(BonificacionAsignadaDTO dto) throws PeajeException {
         Propietario propietario = getPropietario(dto.getCedula());
         Puesto puesto = sistemaTransito.getPuestoByDireccion(dto.getDireccionPuesto());
         sistemaUsuarios.asignarBonificacionApi(propietario, puesto, dto.getNombreBonificacion());
@@ -182,8 +160,7 @@ public class Fachada {
         return sistemaTransito.getPuestoByDireccion(direccion);
     }
 
-    public void logout(Sesion sesion) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'logout'");
+    public void borrarNotificaciones(Long userId) throws PeajeException {
+        sistemaUsuarios.deleteNotificaciones(getPropietarioById(userId).getCedula());
     }
 }

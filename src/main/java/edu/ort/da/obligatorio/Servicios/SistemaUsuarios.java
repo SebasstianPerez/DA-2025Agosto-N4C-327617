@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
@@ -16,13 +17,16 @@ import org.springframework.stereotype.Service;
 import edu.ort.da.obligatorio.DTOs.Usuario.BonificacionAsignadaDTO;
 import edu.ort.da.obligatorio.DTOs.Usuario.LoginDTO;
 import edu.ort.da.obligatorio.DTOs.Usuario.PropietarioDTO;
+import edu.ort.da.obligatorio.Excepciones.PeajeException;
 import edu.ort.da.obligatorio.Modelo.Administrador;
 import edu.ort.da.obligatorio.Modelo.Bonificacion;
 import edu.ort.da.obligatorio.Modelo.Deshabilitado;
 import edu.ort.da.obligatorio.Modelo.EstadoPropietario;
 import edu.ort.da.obligatorio.Modelo.Habilitado;
+import edu.ort.da.obligatorio.Modelo.Notificacion;
 import edu.ort.da.obligatorio.Modelo.Penalizado;
 import edu.ort.da.obligatorio.Modelo.Propietario;
+import edu.ort.da.obligatorio.Modelo.Propietario.Eventos;
 import edu.ort.da.obligatorio.Modelo.PropietarioBonificacion;
 import edu.ort.da.obligatorio.Modelo.Puesto;
 import edu.ort.da.obligatorio.Modelo.Sesion;
@@ -67,13 +71,9 @@ class SistemaUsuarios {
         return (Collection) propietarios;
     }
 
-    /**
-     *
-     */
-    public void agregarPropietario(Propietario usuario) {
+    public void agregarPropietario(Propietario usuario) throws PeajeException {
         if (usuario == null) {
-            // throw new Exception();
-            return;
+            throw new PeajeException("No se puede agregar un propietario nulo");
         }
 
         Long id = getNextId();
@@ -85,9 +85,9 @@ class SistemaUsuarios {
         propietarios.add(usuario);
     }
 
-    public void agregarAdministrador(Administrador usuario) {
+    public void agregarAdministrador(Administrador usuario) throws PeajeException {
         if (usuario == null) {
-            return;
+            throw new PeajeException("No se puede agregar un administrador nulo");
         }
 
         Long id = getNextId();
@@ -95,9 +95,6 @@ class SistemaUsuarios {
         administradores.add(usuario);
     }
 
-    /**
-     *
-     */
     private Usuario login(String cedula, String password, Collection lista) {
         Usuario usuario;
         for (Object o : lista) {
@@ -107,32 +104,34 @@ class SistemaUsuarios {
                 return usuario;
             }
         }
+        
         return null;
     }
 
-    public Propietario loginPropietario(LoginDTO datos) {
+    public Propietario loginPropietario(LoginDTO datos) throws PeajeException {
         Propietario propietario = (Propietario) login(datos.getCedula(), datos.getContrasena(), propietarios);
 
         if (propietario == null) {
-            return null;
+            throw new PeajeException("Acceso denegado (Cédula y/o contraseña incorrectos)");
         }
 
         if (!propietario.puedeIngresar()) {
-            return null;
+            throw new PeajeException("El propietario no puede ingresar. Estado actual: "
+                    + propietario.getEstado().getNombreEstado());
         }
 
         // Exceptions
         return propietario;
     }
 
-    public Administrador loginAdministrador(LoginDTO datos) throws LoginException {
+    public Administrador loginAdministrador(LoginDTO datos) throws PeajeException {
         if (this.estaAdminLogueado(datos.getCedula())) {
-            throw new LoginException("Ud. Ya está logueado");
+            throw new PeajeException("Ud. Ya está logueado");
         }
 
         Administrador admin = (Administrador) login(datos.getCedula(), datos.getContrasena(), administradores);
         if (admin == null) {
-            throw new LoginException("Acceso denegado (Cédula y/o contraseña incorrectos)");
+            throw new PeajeException("Acceso denegado (Cédula y/o contraseña incorrectos)");
         }
 
         this.registrarAdminLogueado(admin);
@@ -152,8 +151,10 @@ class SistemaUsuarios {
         }
     }
 
-    public Collection<String> getNotifiaciones(String cedula) {
-        return null;
+    public Collection<Notificacion> getNotifiaciones(String cedula) {
+        return getPropietarioByCedula(cedula).getNotificaciones().stream()
+                .sorted(Comparator.comparing(Notificacion::getFecha).reversed())
+                .collect(Collectors.toList());
     }
 
     public Collection<String> getBonificacionesNombre() {
@@ -162,12 +163,9 @@ class SistemaUsuarios {
                 .collect(Collectors.toList());
     }
 
-    public void deleteNotificaciones(String cedula) {
-
-    }
-
-    public double cobrarMonto(String cedula, double monto) {
-        return 0;
+    public void deleteNotificaciones(String cedula) throws PeajeException {
+        Propietario propietario = getPropietarioByCedula(cedula);
+        propietario.limpiarNotificaciones();
     }
 
     Administrador getAdministrador(LoginDTO dto) {
@@ -199,16 +197,20 @@ class SistemaUsuarios {
         bonificaciones.add(bonificacion);
     }
 
-    public void asignarBonificacion(PropietarioBonificacion pb) {
+    public void asignarBonificacion(PropietarioBonificacion pb) throws PeajeException {
+        if(!pb.getPropietario().getEstado().puedeRecibirBonificaciones()){
+            throw new PeajeException("El propietario se encuentra en un estado que no permite recibir bonificaciones.");
+        }
+
         Propietario propietario = pb.getPropietario();
         propietario.agregarBonificacion(pb);
     }
 
-    public static EstadoPropietario getInstanciaPorNombre(String nombreEstado) {
+    public static EstadoPropietario getInstanciaPorNombre(String nombreEstado) throws PeajeException {
         return TODOS_LOS_ESTADOS.stream()
                 .filter(estado -> estado.getNombreEstado().equalsIgnoreCase(nombreEstado))
                 .findFirst()
-                .orElseThrow(() -> new NoSuchElementException("Estado no encontrado: " + nombreEstado));
+                .orElseThrow(() -> new PeajeException("Estado no encontrado: " + nombreEstado));
     }
 
     public Propietario getPropietarioByCedula(String cedula) {
@@ -218,11 +220,11 @@ class SistemaUsuarios {
                 .orElse(null);
     }
 
-    public void cambiarEstado(String cedula, String nombreEstadoDestino) {
+    public void cambiarEstado(String cedula, String nombreEstadoDestino) throws PeajeException {
         Propietario propietario = getPropietarioByCedula(cedula);
         EstadoPropietario estadoDestinoInstancia = getInstanciaPorNombre(nombreEstadoDestino);
 
-        propietario.cambiarEstado(estadoDestinoInstancia);
+        propietario.setEstado(estadoDestinoInstancia);
     }
 
     public Bonificacion getBonificacionByNombre(String nombreBonificacion) {
@@ -232,47 +234,33 @@ class SistemaUsuarios {
                 .orElse(null);
     }
 
-    public void asignarBonificacionApi(Propietario propietario, Puesto puesto, String nombreBonificacion) {
+    public void asignarBonificacionApi(Propietario propietario, Puesto puesto, String nombreBonificacion) throws PeajeException {
         Bonificacion bonificacion = getBonificacionByNombre(nombreBonificacion);
-
         PropietarioBonificacion pb = new PropietarioBonificacion(propietario, puesto, bonificacion);
 
         asignarBonificacion(pb);
     }
 
-    // UsuarioService.java (o ServicioDeUsuario)
-
-    // Asume que este servicio inyecta los Repositorios/DAOs necesarios
-
-    // ... inyecciones ...
-
-    public void asignarBonificacion(Propietario propietario, Puesto puesto, String bonificacionNombre) {
-        // 1. OBTENER OBJETOS DEL DOMINIO
+    public void asignarBonificacion(String cedula, Puesto puesto, String bonificacionNombre) throws PeajeException {
         Bonificacion bonificacion = getBonificacionByNombre(bonificacionNombre);
+        Propietario propietario = getPropietario(cedula);
 
         if (propietario == null || puesto == null || bonificacion == null) {
-            throw new IllegalArgumentException("Datos de asignación incompletos o inválidos.");
+            throw new PeajeException("Datos de asignación incompletos o inválidos.");
         }
-
-        // 2. LÓGICA ÚNICA (Reemplazo/Adición): Buscar y remover la bonificación
-        // existente
-        // Esto asegura el reemplazo si hay un conflicto, o no hace nada si no lo hay.
 
         Collection<PropietarioBonificacion> asignacionesActuales = propietario.getBonificaciones();
 
-        // Usamos removeIf para eliminar la asignación antigua, si existe, de forma
-        // limpia.
         asignacionesActuales.removeIf(ba -> ba.getPuesto().getDireccion().equals(puesto.getDireccion()));
 
-        // 3. ASIGNAR LA BONIFICACIÓN NUEVA
-        // Se crea la nueva asignación con la Bonificación (sin importar si se removió
-        // una o no)
         PropietarioBonificacion nuevaAsignacion = new PropietarioBonificacion(propietario, puesto, bonificacion);
 
         propietario.agregarBonificacion(nuevaAsignacion);
     }
 
     public Collection<Transito> getTransitosRealizados(Propietario propietario) {
-        return propietario.getTransitos();
+        return propietario.getTransitos().stream()
+                .sorted(Comparator.comparing(Transito::getFecha).reversed())
+                .collect(Collectors.toList());
     }
 }

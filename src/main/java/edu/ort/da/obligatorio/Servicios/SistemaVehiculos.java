@@ -5,6 +5,7 @@ import java.util.Collection;
 
 import org.springframework.stereotype.Service;
 
+import edu.ort.da.obligatorio.Excepciones.PeajeException;
 import edu.ort.da.obligatorio.Modelo.CategoriaVehiculo;
 import edu.ort.da.obligatorio.Modelo.Propietario;
 import edu.ort.da.obligatorio.Modelo.Vehiculo;
@@ -28,11 +29,7 @@ public class SistemaVehiculos {
 		categorias.add(data);
 	}
 
-	public Collection<Vehiculo> getVehiculosXPropietario(String cedula) {
-		return null;
-	}
-
-	public void asignarVehiculoAPropietario(String matricula, Propietario propietario) {
+	public void asignarVehiculoAPropietario(String matricula, Propietario propietario) throws PeajeException {
 		Vehiculo vehiculo = buscarVehiculoPorMatricula(matricula);
 		if (vehiculo != null) {
 
@@ -40,7 +37,7 @@ public class SistemaVehiculos {
 			propietario.addVehiculo(vehiculo);
 
 		} else {
-			throw new RuntimeException("Vehículo no encontrado: " + matricula);
+			throw new PeajeException("Vehículo no encontrado: " + matricula);
 		}
 	}
 

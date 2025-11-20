@@ -28,20 +28,18 @@
                 <!-- Importante: name="contrasenia" -->
                 <input type="password" id="contrasena" name="contrasena" required>
             </div>
-            <button type="submit" class="btn-acceder">Acceder como usuario Agenda</button>
+            <button type="submit" class="btn-acceder">Acceder como propietario</button>
         </form>
     </div>
 </body>
 
 <script>
-    // Lógica específica de la aplicación que llama a las librerías
     document.getElementById("cedula").value = "23456789";
     document.getElementById("contrasena").value = "prop.123";
 
     function acceder(event) {
-        event.preventDefault(); // Evita el envío tradicional
+        event.preventDefault();
 
-        // Llama a las funciones externas: submit (de vistaWeb.js) y serializarFormulario (de utilesVista.js)
         submit("auth/cliente/login", serializarFormulario("formLogin"));
     }
 

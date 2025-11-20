@@ -20,15 +20,15 @@
 
     <script>
         urlIniciarVista = '/dashboard/vistaConectada';
-        // urlCierreVista = "/acceso/logoutAgenda";
+        // urlCierreVista = "/dashboard/vistaDesconectada";
         urlRegistroSSE = "/dashboard/registrarSSE"; // Al cargarse el menu agenda se registra el SSE
 
         function cargarContenido(pagina) {
-				document.getElementById('contenidoFrame').src = pagina;
-			}
+            document.getElementById('contenidoFrame').src = pagina;
+        }
 
         function procesarMensajeSSE(mensaje) {
-  
+
             var iframe = document.getElementById('contenidoFrame');
             var iframeWindow = iframe.contentWindow;
             iframeWindow.procesarResultadosSubmit(mensaje); //asumo que el iFrame tiene vistaWeb.js incluida
@@ -37,56 +37,6 @@
 
         // --- 2. Lógica Específica de la Vista ---
 
-        // Código que se ejecuta después de que el DOM esté listo
-        function ejecutarCodigoDocumentReady() {
-            const btnBorrar = document.getElementById('btn-borrar-notificaciones');
-            if (btnBorrar) {
-                btnBorrar.addEventListener('click', async () => {
-                    const confirmar = await mostrarConfirmacion(
-                        "¿Está seguro que desea borrar todas las notificaciones?",
-                        "Sí, borrar",
-                        "No, cancelar"
-                    );
-
-                    if (confirmar) {
-                        mostrarMensaje("Notificaciones borradas. (Simulado)");
-                    }
-                });
-            }
-        }
-
-
-        const linkSalir = document.querySelector('.salir-link');
-
-        if (linkSalir) {
-            linkSalir.addEventListener('click', function (e) {
-                e.preventDefault();
-
-                handleLogout();
-            });
-        }
-
-
-        function handleLogout() {
-            // 1. URL de tu Controller de Logout
-            const logoutUrl = '/auth/logout';
-
-            // 2. Usamos POST para mayor seguridad, aunque GET funciona si el Controller lo permite.
-            // Usamos submit() de vistaWeb.js
-            submit(logoutUrl, '', 'POST');
-
-            // NOTA: La redirección real la maneja la función mostrar_redireccion_login, 
-            // que es llamada después de que el Controller destruye la sesión.
-        }
-
-        function mostrar_usuarioNoAutenticado(url) {
-            // Redirecciona al usuario a la página de login (la URL que envíe el backend)
-            window.location.href = url;
-        }
-
-
-        // 3. Función de procesamiento de respuesta del Controller de Logout
-        // Tu Controller debe devolver una Respuesta con ID "redireccionLogin"
         function mostrar_redireccionLogin(url) {
             // Redirecciona al usuario a la página de login (la URL que envíe el backend)
             window.location.href = url;
@@ -95,12 +45,9 @@
         function procesarMensajeSSE(mensaje) {
             var iframe = document.getElementById('contenidoFrame');
             var iframeWindow = iframe.contentWindow;
-            iframeWindow.procesarResultadosSubmit(mensaje); //asumo que el iFrame tiene vistaWeb.js incluida
-            console.log("Mensaje SSE procesado en el iFrame." + mensaje);
+            iframeWindow.procesarResultadosSubmit(mensaje);
         }
 
-        //Se ejecuta cuando se cierra la conexion desde el servidor
-        //Si no se define esta funcion, por defecto se "borra" la pagina 
         function conexionSSECerrada(event) {
             cerrar();
         }
